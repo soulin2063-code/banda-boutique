@@ -1,7 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 interface CategoryTranslation {
   locale: string;
@@ -104,6 +110,10 @@ export default function AdminProduitsPage() {
   const [descFr, setDescFr] = useState('');
   const [descEn, setDescEn] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>('');
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Dynamically loaded attributes for selected category
   const [categoryAttributes, setCategoryAttributes] = useState<CategoryAttributeDetail[]>([]);
@@ -249,6 +259,8 @@ export default function AdminProduitsPage() {
     setDescFr('');
     setDescEn('');
     setImageUrl('');
+    setImageFile(null);
+    setImagePreview('');
     setCategoryAttributes([]);
     setSelectedVariantOptions({});
     setVariants([]);
@@ -263,11 +275,49 @@ export default function AdminProduitsPage() {
 
 
 
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+    setImageUrl('');
+  };
+
+  const uploadImageToSupabase = async (file: File): Promise<string> => {
+    const ext = file.name.split('.').pop();
+    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const { error } = await supabase.storage
+      .from('product-images')
+      .upload(fileName, file, { cacheControl: '3600', upsert: false });
+    if (error) throw new Error(`Image upload failed: ${error.message}`);
+    const { data: urlData } = supabase.storage
+      .from('product-images')
+      .getPublicUrl(fileName);
+    return urlData.publicUrl;
+  };
+
   const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
     setError(null);
     setSuccessMsg(null);
+
+    let finalImageUrl = imageUrl.trim();
+
+    // Upload file if selected
+    if (imageFile) {
+      try {
+        setUploadingImage(true);
+        finalImageUrl = await uploadImageToSupabase(imageFile);
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Image upload error');
+        setSubmitting(false);
+        setUploadingImage(false);
+        return;
+      } finally {
+        setUploadingImage(false);
+      }
+    }
 
     const payload = {
       slug: slug.trim().toLowerCase(),
@@ -283,7 +333,7 @@ export default function AdminProduitsPage() {
       description_ar: descAr.trim(),
       description_fr: descFr.trim(),
       description_en: descEn.trim(),
-      images: imageUrl.trim() ? [{ url: imageUrl.trim(), position: 0 }] : [],
+      images: finalImageUrl ? [{ url: finalImageUrl, position: 0 }] : [],
       variants: variants.map((v) => ({
         sku: v.sku.trim(),
         price_override: v.price_override ? Number(v.price_override) : null,
@@ -308,6 +358,8 @@ export default function AdminProduitsPage() {
 
       setSuccessMsg(`Product "${nameFr || slug}" created successfully!`);
       setIsModalOpen(false);
+      setImageFile(null);
+      setImagePreview('');
       await fetchInitialData();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error creating product');
@@ -729,15 +781,43 @@ export default function AdminProduitsPage() {
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-slate-700 mb-1">
-                      URL Image Principale
+                      صورة المنتج الرئيسية
                     </label>
-                    <input
-                      type="url"
-                      value={imageUrl}
-                      onChange={(e) => setImageUrl(e.target.value)}
-                      placeholder="https://..."
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-600 focus:outline-none"
-                    />
+                    <div
+                      className="relative border-2 border-dashed border-slate-300 rounded-lg p-3 text-center cursor-pointer hover:border-emerald-500 hover:bg-emerald-50/30 transition-colors"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      {imagePreview ? (
+                        <div className="relative">
+                          <img
+                            src={imagePreview}
+                            alt="Preview"
+                            className="h-28 w-full object-contain rounded-md"
+                          />
+                          <button
+                            type="button"
+                            onClick={(ev) => { ev.stopPropagation(); setImageFile(null); setImagePreview(''); if(fileInputRef.current) fileInputRef.current.value=''; }}
+                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600"
+                          >✕</button>
+                        </div>
+                      ) : (
+                        <div className="py-3">
+                          <div className="text-2xl mb-1">📷</div>
+                          <p className="text-xs text-slate-500">اضغط لرفع صورة</p>
+                          <p className="text-[10px] text-slate-400">PNG, JPG, WEBP حتى 5MB</p>
+                        </div>
+                      )}
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleImageFileChange}
+                      />
+                    </div>
+                    {uploadingImage && (
+                      <p className="text-xs text-emerald-600 mt-1 text-center">⏳ جاري رفع الصورة...</p>
+                    )}
                   </div>
                 </div>
               </div>
