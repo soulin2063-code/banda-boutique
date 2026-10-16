@@ -13,6 +13,7 @@ export const metadata: Metadata = {
 
 const sellerNavItems = [
   { label: 'Commandes', href: '/seller', icon: '📦' },
+  { label: 'Ajouter un produit', href: '/seller/produits', icon: '➕' },
   { label: 'Mon compte', href: '/seller/compte', icon: '👤' },
 ];
 
