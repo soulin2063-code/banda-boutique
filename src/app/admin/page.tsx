@@ -110,16 +110,16 @@ export default async function AdminDashboardPage() {
   return (
     <div className="space-y-8">
       {/* Top Banner */}
-      <div className="rounded-3xl bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-950 p-6 sm:p-8 text-white shadow-xl flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+      <div className="rounded-3xl bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 p-6 sm:p-8 text-white shadow-xl border border-indigo-900/30 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
         <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-400">
-            <span>🇩🇿 ShopDZ — Commerce Électronique Algérien</span>
+          <div className="inline-flex items-center gap-2 rounded-full bg-indigo-500/15 border border-indigo-500/30 px-3 py-1 text-xs font-semibold text-indigo-300">
+            <span>🇩🇿 ShopDZ — منصة التجارة الإلكترونية</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
-            Tableau de Bord Vendeur
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
+            لوحة إدارة المتجر والمبيعات
           </h1>
           <p className="text-sm text-slate-300 max-w-xl">
-            Surveillez en direct vos commandes en attente de confirmation, votre chiffre d’affaires et l’état de vos stocks.
+            متابعة فورية للطلبات، تأكيد اتصالات الزبائن (COD)، تحليل الأرباح وحالة المخزون عبر 58 ولاية.
           </p>
         </div>
 
@@ -127,23 +127,23 @@ export default async function AdminDashboardPage() {
         <div className="flex flex-wrap items-center gap-3">
           <Link
             href="/admin/produits"
-            className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white shadow-md hover:bg-emerald-500 transition-colors"
+            className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-xs font-bold text-white shadow-lg shadow-indigo-600/30 hover:bg-indigo-500 transition-all hover:-translate-y-0.5"
           >
             <Plus className="h-4 w-4" />
-            <span>Nouveau Produit</span>
+            <span>إضافة منتج جديد</span>
           </Link>
           <Link
             href="/ar"
             target="_blank"
-            className="inline-flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/10 backdrop-blur-xs px-4 py-2.5 text-xs font-semibold text-white hover:bg-white/20 transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/5 backdrop-blur-xs px-4 py-2.5 text-xs font-semibold text-white hover:bg-white/10 transition-colors"
           >
-            <span>Voir Boutique</span>
+            <span>معاينة المتجر</span>
             <ExternalLink className="h-3.5 w-3.5" />
           </Link>
         </div>
       </div>
 
-      {/* T18 Summary Cards */}
+      {/* Summary Cards */}
       <SummaryCards
         totalRevenue={totalRevenue}
         totalOrders={totalOrders}
@@ -166,53 +166,53 @@ export default async function AdminDashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Link
           href="/admin/commandes"
-          className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs hover:border-slate-300 transition-colors flex items-center gap-3"
+          className="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-xs hover:border-indigo-300 hover:shadow-md transition-all flex items-center gap-3 group"
         >
-          <div className="p-3 rounded-xl bg-emerald-50 text-emerald-600">
+          <div className="p-3 rounded-xl bg-indigo-50 text-indigo-600 group-hover:scale-105 transition-transform">
             <ShoppingBag className="h-5 w-5" />
           </div>
           <div>
-            <div className="text-sm font-bold text-slate-900">Commandes</div>
-            <div className="text-xs text-slate-500">Traiter les appels & WhatsApp</div>
+            <div className="text-sm font-bold text-slate-900">إدارة الطلبات</div>
+            <div className="text-xs text-slate-500">تأكيد اتصالات الزبائن والواتساب</div>
           </div>
         </Link>
 
         <Link
           href="/admin/produits"
-          className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs hover:border-slate-300 transition-colors flex items-center gap-3"
+          className="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-xs hover:border-blue-300 hover:shadow-md transition-all flex items-center gap-3 group"
         >
-          <div className="p-3 rounded-xl bg-blue-50 text-blue-600">
+          <div className="p-3 rounded-xl bg-blue-50 text-blue-600 group-hover:scale-105 transition-transform">
             <Package className="h-5 w-5" />
           </div>
           <div>
-            <div className="text-sm font-bold text-slate-900">Produits</div>
-            <div className="text-xs text-slate-500">Gérer catalogue & variantes</div>
+            <div className="text-sm font-bold text-slate-900">المنتجات والكتالوج</div>
+            <div className="text-xs text-slate-500">إدارة المنتجات والأسعار والصور</div>
           </div>
         </Link>
 
         <Link
           href="/admin/attributs"
-          className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs hover:border-slate-300 transition-colors flex items-center gap-3"
+          className="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-xs hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3 group"
         >
-          <div className="p-3 rounded-xl bg-purple-50 text-purple-600">
+          <div className="p-3 rounded-xl bg-purple-50 text-purple-600 group-hover:scale-105 transition-transform">
             <Tag className="h-5 w-5" />
           </div>
           <div>
-            <div className="text-sm font-bold text-slate-900">Attributs & Options</div>
-            <div className="text-xs text-slate-500">Tailles, couleurs, volumes</div>
+            <div className="text-sm font-bold text-slate-900">الخصائص والخيارات</div>
+            <div className="text-xs text-slate-500">المقاسات، الألوان، والأحجام</div>
           </div>
         </Link>
 
         <Link
           href="/admin/parametres"
-          className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs hover:border-slate-300 transition-colors flex items-center gap-3"
+          className="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-xs hover:border-amber-300 hover:shadow-md transition-all flex items-center gap-3 group"
         >
-          <div className="p-3 rounded-xl bg-amber-50 text-amber-600">
+          <div className="p-3 rounded-xl bg-amber-50 text-amber-600 group-hover:scale-105 transition-transform">
             <Truck className="h-5 w-5" />
           </div>
           <div>
-            <div className="text-sm font-bold text-slate-900">Livraison & Tarifs</div>
-            <div className="text-xs text-slate-500">Yalidine / dzship & 58 wilayas</div>
+            <div className="text-sm font-bold text-slate-900">التوصيل والشحن</div>
+            <div className="text-xs text-slate-500">تسعيرة 58 ولاية والمكاتب</div>
           </div>
         </Link>
       </div>

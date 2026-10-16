@@ -121,45 +121,45 @@ export default function SellerAddProductPage() {
     <div className="max-w-2xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="h-10 w-10 rounded-xl bg-amber-100 flex items-center justify-center">
-          <Plus className="h-5 w-5 text-amber-700" />
+        <div className="h-10 w-10 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center justify-center">
+          <Plus className="h-5 w-5 text-indigo-600" />
         </div>
         <div>
-          <h1 className="text-xl font-black text-slate-900">إضافة منتج جديد</h1>
-          <p className="text-xs text-slate-500">سيُراجع المنتج من طرف الأدمن قبل النشر</p>
+          <h1 className="text-xl font-black text-slate-900">إضافة منتج جديد للمتجر</h1>
+          <p className="text-xs text-slate-500">سيُحفظ المنتج كمسودة وتتم مراجعته وتفعيله من طرف الإدارة</p>
         </div>
       </div>
 
       {/* Alerts */}
       {error && (
-        <div className="flex items-start gap-3 rounded-xl bg-red-50 border border-red-200 p-4">
-          <AlertCircle className="h-4 w-4 text-red-500 mt-0.5 shrink-0" />
-          <p className="text-sm text-red-700">{error}</p>
-          <button onClick={() => setError(null)} className="ml-auto text-red-400 hover:text-red-600">
+        <div className="flex items-start gap-3 rounded-xl bg-rose-50 border border-rose-200 p-4">
+          <AlertCircle className="h-4 w-4 text-rose-500 mt-0.5 shrink-0" />
+          <p className="text-sm text-rose-700">{error}</p>
+          <button onClick={() => setError(null)} className="mr-auto text-rose-400 hover:text-rose-600">
             <X className="h-4 w-4" />
           </button>
         </div>
       )}
       {success && (
-        <div className="flex items-start gap-3 rounded-xl bg-emerald-50 border border-emerald-200 p-4">
-          <CheckCircle className="h-4 w-4 text-emerald-500 mt-0.5 shrink-0" />
-          <p className="text-sm text-emerald-700">{success}</p>
+        <div className="flex items-start gap-3 rounded-xl bg-indigo-50 border border-indigo-200 p-4">
+          <CheckCircle className="h-4 w-4 text-indigo-600 mt-0.5 shrink-0" />
+          <p className="text-sm text-indigo-800 font-semibold">{success}</p>
         </div>
       )}
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-stone-200 p-6 space-y-6">
+      <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-6 space-y-6">
 
         {/* Image Upload */}
         <div>
-          <label className="block text-sm font-semibold text-slate-700 mb-2">
-            صورة المنتج
+          <label className="block text-xs font-bold text-slate-700 mb-2">
+            صورة المنتج الرئيسية *
           </label>
           <div
-            className={`relative border-2 border-dashed rounded-xl text-center cursor-pointer transition-all
+            className={`relative border-2 border-dashed rounded-2xl text-center cursor-pointer transition-all
               ${imagePreview
-                ? 'border-emerald-400 bg-emerald-50/30'
-                : 'border-stone-300 hover:border-amber-400 hover:bg-amber-50/20'
+                ? 'border-indigo-400 bg-indigo-50/20'
+                : 'border-slate-300 hover:border-indigo-400 hover:bg-indigo-50/10'
               }`}
             onClick={() => !imagePreview && fileInputRef.current?.click()}
           >
@@ -168,27 +168,27 @@ export default function SellerAddProductPage() {
                 <img
                   src={imagePreview}
                   alt="معاينة"
-                  className="h-52 w-full object-contain rounded-lg"
+                  className="h-52 w-full object-contain rounded-xl"
                 />
                 <button
                   type="button"
                   onClick={(e) => { e.stopPropagation(); removeImage(); }}
-                  className="absolute top-5 right-5 bg-red-500 hover:bg-red-600 text-white rounded-full h-7 w-7 flex items-center justify-center shadow-md transition-colors"
+                  className="absolute top-5 right-5 bg-rose-500 hover:bg-rose-600 text-white rounded-full h-7 w-7 flex items-center justify-center shadow-md transition-colors"
                 >
                   <X className="h-3.5 w-3.5" />
                 </button>
                 <button
                   type="button"
                   onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
-                  className="mt-2 text-xs text-amber-600 hover:underline font-medium"
+                  className="mt-2 text-xs text-indigo-600 hover:underline font-bold"
                 >
                   🔄 تغيير الصورة
                 </button>
               </div>
             ) : (
               <div className="py-10 px-4">
-                <Upload className="h-10 w-10 text-stone-300 mx-auto mb-3" />
-                <p className="text-sm font-semibold text-slate-600">اضغط لرفع صورة</p>
+                <Upload className="h-10 w-10 text-slate-400 mx-auto mb-3" />
+                <p className="text-sm font-bold text-slate-700">اضغط لرفع صورة المنتج</p>
                 <p className="text-xs text-slate-400 mt-1">PNG، JPG، WEBP — حتى 5MB</p>
               </div>
             )}
@@ -202,8 +202,8 @@ export default function SellerAddProductPage() {
           </div>
           {uploading && (
             <div className="flex items-center gap-2 mt-2">
-              <div className="h-3 w-3 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
-              <p className="text-xs text-amber-600 font-medium">جاري رفع الصورة...</p>
+              <div className="h-3 w-3 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+              <p className="text-xs text-indigo-600 font-bold">جاري رفع الصورة إلى التخزين...</p>
             </div>
           )}
         </div>
@@ -211,29 +211,33 @@ export default function SellerAddProductPage() {
         {/* Names */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-1.5">
-              اسم المنتج (فرنسي) *
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">
+              اسم المنتج بالعربية *
+            </label>
+            <input
+              type="text"
+              required
+              dir="rtl"
+              value={nameAr}
+              onChange={(e) => {
+                setNameAr(e.target.value);
+                if (!nameFr) setNameFr(e.target.value);
+              }}
+              placeholder="مثال: عباءة سوداء مطرزة"
+              className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:border-indigo-600 focus:outline-none focus:ring-1 focus:ring-indigo-600 transition-all"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">
+              اسم المنتج بالفرنسية / الرابط *
             </label>
             <input
               type="text"
               required
               value={nameFr}
               onChange={(e) => setNameFr(e.target.value)}
-              placeholder="Ex: Abaya Noire Premium"
-              className="w-full rounded-xl border border-stone-300 px-3.5 py-2.5 text-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-1.5">
-              اسم المنتج (عربي)
-            </label>
-            <input
-              type="text"
-              dir="rtl"
-              value={nameAr}
-              onChange={(e) => setNameAr(e.target.value)}
-              placeholder="مثال: عباءة سوداء فاخرة"
-              className="w-full rounded-xl border border-stone-300 px-3.5 py-2.5 text-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
+              placeholder="Ex: Abaya Noire Brodee"
+              className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:border-indigo-600 focus:outline-none focus:ring-1 focus:ring-indigo-600 transition-all"
             />
           </div>
         </div>
@@ -241,8 +245,8 @@ export default function SellerAddProductPage() {
         {/* Pricing */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-1.5">
-              السعر (DA) *
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">
+              السعر الأساسي (د.ج) *
             </label>
             <input
               type="number"
@@ -250,12 +254,12 @@ export default function SellerAddProductPage() {
               min="1"
               value={basePrice}
               onChange={(e) => setBasePrice(Number(e.target.value))}
-              className="w-full rounded-xl border border-stone-300 px-3.5 py-2.5 text-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
+              className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-bold focus:border-indigo-600 focus:outline-none focus:ring-1 focus:ring-indigo-600 transition-all"
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-1.5">
-              السعر المشطوب (DA)
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">
+              السعر القديم قبل الخصم (د.ج)
             </label>
             <input
               type="number"
@@ -263,30 +267,31 @@ export default function SellerAddProductPage() {
               value={compareAtPrice}
               onChange={(e) => setCompareAtPrice(e.target.value ? Number(e.target.value) : '')}
               placeholder="اختياري"
-              className="w-full rounded-xl border border-stone-300 px-3.5 py-2.5 text-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
+              className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:border-indigo-600 focus:outline-none focus:ring-1 focus:ring-indigo-600 transition-all"
             />
           </div>
         </div>
 
         {/* Description */}
         <div>
-          <label className="block text-xs font-semibold text-slate-600 mb-1.5">
-            وصف المنتج (فرنسي)
+          <label className="block text-xs font-bold text-slate-700 mb-1.5">
+            وصف المنتج ومميزاته
           </label>
           <textarea
             rows={3}
+            dir="rtl"
             value={descFr}
             onChange={(e) => setDescFr(e.target.value)}
-            placeholder="اكتب وصفاً للمنتج..."
-            className="w-full rounded-xl border border-stone-300 px-3.5 py-2.5 text-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all resize-none"
+            placeholder="اكتب وصفاً جذاباً لمواصفات المنتج وقماشه..."
+            className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:border-indigo-600 focus:outline-none focus:ring-1 focus:ring-indigo-600 transition-all resize-none"
           />
         </div>
 
         {/* Info note */}
-        <div className="flex items-start gap-2.5 rounded-xl bg-amber-50 border border-amber-200 p-3.5">
-          <Package className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
-          <p className="text-xs text-amber-800">
-            <strong>ملاحظة:</strong> المنتج سيُحفظ كـ <strong>مسودة (Draft)</strong> وسيراجعه الأدمن قبل نشره في المتجر.
+        <div className="flex items-start gap-2.5 rounded-2xl bg-indigo-50/70 border border-indigo-200/80 p-4">
+          <Package className="h-4 w-4 text-indigo-600 mt-0.5 shrink-0" />
+          <p className="text-xs text-indigo-900 leading-relaxed">
+            <strong>ملاحظة هامة:</strong> سيتم حفظ المنتج كـ <strong>مسودة</strong> ومراجعته من قبل إدارة المتجر قبل ظهوره للزبائن في الموقع.
           </p>
         </div>
 
@@ -294,12 +299,12 @@ export default function SellerAddProductPage() {
         <button
           type="submit"
           disabled={submitting || uploading || !nameFr.trim()}
-          className="w-full flex items-center justify-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-50 disabled:cursor-not-allowed px-6 py-3.5 text-sm font-bold text-white shadow-sm shadow-amber-200 transition-all"
+          className="w-full flex items-center justify-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed px-6 py-3.5 text-sm font-bold text-white shadow-md shadow-indigo-600/20 transition-all hover:-translate-y-0.5"
         >
           {submitting ? (
             <>
               <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              <span>جاري الإرسال...</span>
+              <span>جاري الإرسال والمزامنة...</span>
             </>
           ) : (
             <>

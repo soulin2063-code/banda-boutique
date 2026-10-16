@@ -31,19 +31,19 @@ export function WilayaHeatmap({ stats, totalOrders }: WilayaHeatmapProps) {
   const maxOrders = Math.max(...displayStats.map((s) => s.order_count), 1);
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4">
+    <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-xs space-y-4">
       <div className="flex items-center justify-between border-b border-slate-100 pb-4">
         <div>
           <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-            <MapPin className="h-4 w-4 text-emerald-600" />
-            <span>Répartition par Wilaya</span>
+            <MapPin className="h-4 w-4 text-indigo-600" />
+            <span>توزيع الطلبات حسب الولايات</span>
           </h3>
           <p className="text-xs text-slate-500">
-            Top des wilayas générant le plus de commandes
+            أعلى الولايات طلباً للمنتجات
           </p>
         </div>
         <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700">
-          58 Wilayas
+          58 ولاية
         </span>
       </div>
 
@@ -51,18 +51,18 @@ export function WilayaHeatmap({ stats, totalOrders }: WilayaHeatmapProps) {
         {displayStats.slice(0, 7).map((item, idx) => {
           const percent = Math.round((item.order_count / maxOrders) * 100);
           return (
-            <div key={item.wilaya_id} className="space-y-1">
+            <div key={item.wilaya_id} className="space-y-1.5">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-semibold text-slate-800">
-                  <span className="text-slate-400 font-mono me-1.5">#{idx + 1}</span>
+                  <span className="text-slate-400 font-mono ms-1.5">#{idx + 1}</span>
                   {item.wilaya_name}
                 </span>
                 <div className="flex items-center gap-3">
                   <span className="font-bold text-slate-900 font-mono">
-                    {item.order_count} cmd
+                    {item.order_count} طلب
                   </span>
-                  <span className="font-semibold text-emerald-700 font-mono text-[11px]">
-                    {item.total_revenue.toLocaleString()} DA
+                  <span className="font-semibold text-indigo-600 font-mono text-[11px]">
+                    {item.total_revenue.toLocaleString()} د.ج
                   </span>
                 </div>
               </div>
@@ -70,7 +70,7 @@ export function WilayaHeatmap({ stats, totalOrders }: WilayaHeatmapProps) {
               {/* Progress bar */}
               <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-500"
+                  className="h-full rounded-full bg-gradient-to-l from-indigo-600 to-sky-400 transition-all duration-500"
                   style={{ width: `${percent}%` }}
                 />
               </div>

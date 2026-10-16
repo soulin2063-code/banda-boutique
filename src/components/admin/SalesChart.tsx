@@ -39,39 +39,39 @@ export function SalesChart({ data }: SalesChartProps) {
         ];
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4">
+    <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-xs space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-100 pb-4">
         <div>
           <h3 className="text-base font-bold text-slate-900">
-            Évolution des Ventes & Commandes
+            مؤشر المبيعات والطلبات
           </h3>
           <p className="text-xs text-slate-500">
-            Tendance des 7 à 30 derniers jours
+            تطور حجم المداخيل والطلبيات لآخر 7 أيام
           </p>
         </div>
 
-        <div className="inline-flex rounded-xl bg-slate-100 p-1 text-xs font-semibold">
+        <div className="inline-flex rounded-xl bg-slate-100/90 p-1 text-xs font-semibold">
           <button
             type="button"
             onClick={() => setMetric('amount')}
             className={`rounded-lg px-3 py-1.5 transition-all ${
               metric === 'amount'
-                ? 'bg-white text-emerald-800 shadow-xs'
+                ? 'bg-white text-indigo-700 shadow-xs font-bold'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            Chiffre d’Affaires (DA)
+            المداخيل (د.ج)
           </button>
           <button
             type="button"
             onClick={() => setMetric('orders')}
             className={`rounded-lg px-3 py-1.5 transition-all ${
               metric === 'orders'
-                ? 'bg-white text-blue-800 shadow-xs'
+                ? 'bg-white text-blue-700 shadow-xs font-bold'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            Nombre de Commandes
+            عدد الطلبات
           </button>
         </div>
       </div>
@@ -81,12 +81,12 @@ export function SalesChart({ data }: SalesChartProps) {
           <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="amountGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#059669" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#059669" stopOpacity={0.0} />
+                <stop offset="5%" stopColor="#6366f1" stopOpacity={0.35} />
+                <stop offset="95%" stopColor="#6366f1" stopOpacity={0.0} />
               </linearGradient>
               <linearGradient id="ordersGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#2563eb" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#2563eb" stopOpacity={0.0} />
+                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.35} />
+                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.0} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
@@ -111,17 +111,19 @@ export function SalesChart({ data }: SalesChartProps) {
                 border: 'none',
                 color: '#fff',
                 fontSize: '12px',
+                textAlign: 'right',
+                direction: 'rtl',
               }}
               formatter={(val: any) => [
-                metric === 'amount' ? `${val.toLocaleString()} DA` : `${val} commandes`,
-                metric === 'amount' ? 'Chiffre d’Affaires' : 'Commandes',
+                metric === 'amount' ? `${Number(val).toLocaleString()} د.ج` : `${val} طلب`,
+                metric === 'amount' ? 'المداخيل' : 'الطلبات',
               ]}
             />
             {metric === 'amount' ? (
               <Area
                 type="monotone"
                 dataKey="amount"
-                stroke="#059669"
+                stroke="#6366f1"
                 strokeWidth={2.5}
                 fillOpacity={1}
                 fill="url(#amountGradient)"
@@ -130,7 +132,7 @@ export function SalesChart({ data }: SalesChartProps) {
               <Area
                 type="monotone"
                 dataKey="orders"
-                stroke="#2563eb"
+                stroke="#3b82f6"
                 strokeWidth={2.5}
                 fillOpacity={1}
                 fill="url(#ordersGradient)"

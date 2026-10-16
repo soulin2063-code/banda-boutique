@@ -21,19 +21,18 @@ export const metadata: Metadata = {
 };
 
 const navItems = [
-  { label: 'Tableau de bord', href: '/admin', icon: '📊' },
-  { label: 'Catégories (الفئات)', href: '/admin/categories', icon: '🗂️' },
-  { label: 'Produits (المنتجات)', href: '/admin/produits', icon: '📦' },
-  { label: 'Attributs', href: '/admin/attributs', icon: '🏷️' },
-  { label: 'Stock', href: '/admin/stock', icon: '📋' },
-  { label: 'Commandes', href: '/admin/commandes', icon: '🛍️' },
-  { label: 'Clients', href: '/admin/clients', icon: '👥' },
-  { label: 'Paramètres', href: '/admin/parametres', icon: '⚙️' },
+  { label: 'لوحة التحكم', href: '/admin', icon: '📊' },
+  { label: 'الطلبات', href: '/admin/commandes', icon: '🛍️' },
+  { label: 'المنتجات', href: '/admin/produits', icon: '📦' },
+  { label: 'التصنيفات', href: '/admin/categories', icon: '🗂️' },
+  { label: 'المخزون', href: '/admin/stock', icon: '📋' },
+  { label: 'الخصائص والخيارات', href: '/admin/attributs', icon: '🏷️' },
+  { label: 'الزبائن', href: '/admin/clients', icon: '👥' },
+  { label: 'الإعدادات والأسعار', href: '/admin/parametres', icon: '⚙️' },
 ];
 
 async function handleLogout() {
   'use server';
-  // القرار الأمني: حذف الـ cookie من السيرفر يضمن إلغاء الجلسة حتى لو لم يعمل الـ JS على العميل
   const cookieStore = await cookies();
   cookieStore.delete('admin_token');
   redirect('/admin/login');
@@ -51,63 +50,81 @@ export default async function AdminLayout({
 
   if (isLoginPage) {
     return (
-      <div className="min-h-screen bg-slate-900 font-sans antialiased text-white">
+      <div dir="rtl" className="min-h-screen bg-slate-900 font-sans antialiased text-white">
         {children}
       </div>
     );
   }
 
-  // القرار الأمني: requireAdmin() يتحقق من الجلسة والدور على السيرفر.
-  // لا يُتخطى حتى لو تجاوز شيء ما الـ Middleware.
   await requireAdmin();
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-sans antialiased text-slate-900">
-        <header className="bg-slate-900 text-white sticky top-0 z-40 shadow-md">
+    <div dir="rtl" className="min-h-screen bg-slate-50/70 flex flex-col font-sans antialiased text-slate-900">
+      {/* Top Header */}
+      <header className="bg-slate-950 text-white sticky top-0 z-40 border-b border-slate-800 shadow-lg">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex h-16 items-center justify-between">
+            {/* Logo & Badge */}
+            <div className="flex items-center gap-3">
+              <Link href="/admin" className="flex items-center gap-2 group">
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-400 font-black text-white shadow-md shadow-indigo-500/20 text-lg">
+                  ⚡
+                </span>
+                <span className="text-lg font-black tracking-tight text-white group-hover:text-indigo-300 transition-colors">
+                  ShopDZ
+                </span>
+              </Link>
+              <span className="rounded-full bg-indigo-500/15 border border-indigo-500/30 px-2.5 py-0.5 text-xs font-semibold text-indigo-300">
+                لوحة الإدارة
+              </span>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="flex items-center gap-3">
+              <Link
+                href="/ar"
+                target="_blank"
+                className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-slate-700/80 bg-slate-800/80 px-3 py-1.5 text-xs font-medium text-slate-200 hover:bg-slate-700 hover:text-white transition-colors"
+              >
+                <span>معاينة المتجر</span>
+                <span className="text-slate-400">↗</span>
+              </Link>
+
+              <form action={handleLogout}>
+                <button
+                  type="submit"
+                  className="rounded-lg bg-rose-500/10 border border-rose-500/20 px-3 py-1.5 text-xs font-semibold text-rose-300 hover:bg-rose-500/20 hover:text-rose-200 transition-colors"
+                >
+                  تسجيل الخروج
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        {/* Sub Navigation Bar */}
+        <div className="bg-slate-900/95 border-t border-slate-800/80 backdrop-blur-xs">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="flex h-16 items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className="text-xl font-black tracking-tight text-white">
-                  🇩🇿 ShopDZ Admin
-                </span>
-                <span className="rounded bg-emerald-500/20 px-2 py-0.5 text-xs font-semibold text-emerald-400">
-                  Admin Panel
-                </span>
-              </div>
-              <div className="flex items-center gap-4">
-                {/* لا رابط مباشر للمتجر هنا — الأدمن يعرف الرابط */}
-                <form action={handleLogout}>
-                  <button
-                    type="submit"
-                    className="rounded-lg bg-red-500/20 px-3 py-1 text-xs font-medium text-red-300 hover:bg-red-500/30 transition-colors"
-                  >
-                    Déconnexion
-                  </button>
-                </form>
-              </div>
-            </div>
+            <nav className="flex items-center gap-1 overflow-x-auto py-2 scrollbar-none">
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="flex items-center gap-2 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-all"
+                >
+                  <span className="text-sm">{item.icon}</span>
+                  <span>{item.label}</span>
+                </Link>
+              ))}
+            </nav>
           </div>
-          {/* Sub Navigation Bar */}
-          <div className="bg-slate-800 border-t border-slate-700/60">
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-              <nav className="flex space-x-1 overflow-x-auto py-2">
-                {navItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="flex items-center gap-1.5 whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
-                  >
-                    <span>{item.icon}</span>
-                    <span>{item.label}</span>
-                  </Link>
-                ))}
-              </nav>
-            </div>
-          </div>
-        </header>
-        <main className="flex-1 mx-auto max-w-7xl w-full p-4 sm:p-6 lg:p-8">
-          {children}
-        </main>
-      </div>
-    );
-  }
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="flex-1 mx-auto max-w-7xl w-full p-4 sm:p-6 lg:p-8">
+        {children}
+      </main>
+    </div>
+  );
+}

@@ -139,6 +139,15 @@ export default function AdminProduitsPage() {
 
   const [submitting, setSubmitting] = useState(false);
 
+  // Helper: convert text to URL slug
+  const toSlug = (text: string) =>
+    text.trim().toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // remove accents
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+
   const fetchInitialData = async () => {
     setLoading(true);
     setError(null);
@@ -390,24 +399,24 @@ export default function AdminProduitsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200 pb-5">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-            Gestion des Produits
+            إدارة المنتجات والكتالوج
           </h1>
           <p className="mt-1 text-sm text-slate-500">
-            Create and edit vertical-agnostic products. Attribute fields render dynamically based on the selected category.
+            إضافة وتعديل المنتجات، الأسعار، الصور، والخيارات المتنوعة (المقاسات والألوان).
           </p>
         </div>
         <div className="flex items-center gap-3">
           <Link
             href="/admin/categories"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-xs hover:bg-slate-50 transition-colors"
           >
-            🗂️ إدارة الفئات (Catégories)
+            🗂️ إدارة الفئات والتصنيفات
           </Link>
           <button
             onClick={openCreateModal}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-indigo-600/20 hover:bg-indigo-500 transition-all hover:-translate-y-0.5"
           >
-            + إضافة منتج جديد (+ Produit)
+            + إضافة منتج جديد
           </button>
         </div>
       </div>
@@ -417,7 +426,7 @@ export default function AdminProduitsPage() {
           <div className="flex items-center gap-2">
             <span className="text-xl">⚠️</span>
             <span>
-              <strong>تنبيه:</strong> لا توجد فئات (Catégories) في المتجر بعد. تحتاج لإضافة فئة أولاً (مثل: حجابات، عبايات) حتى تتمكن من إضافة منتج وربطه بها.
+              <strong>تنبيه:</strong> لا توجد فئات في المتجر بعد. يرجى إضافة فئة أولاً (مثل: حجابات، عبايات) لتتمكن من ربط المنتجات بها.
             </span>
           </div>
           <Link
@@ -431,51 +440,53 @@ export default function AdminProduitsPage() {
 
       {/* Alerts */}
       {error && (
-        <div className="rounded-lg bg-red-50 p-4 text-sm text-red-700 border border-red-200">
-          <strong>Error:</strong> {error}
+        <div className="rounded-xl bg-rose-50 p-4 text-sm text-rose-800 border border-rose-200 flex items-center justify-between">
+          <span>{error}</span>
+          <button onClick={() => setError(null)} className="text-rose-500 hover:text-rose-700">✕</button>
         </div>
       )}
       {successMsg && (
-        <div className="rounded-lg bg-emerald-50 p-4 text-sm text-emerald-800 border border-emerald-200">
-          {successMsg}
+        <div className="rounded-xl bg-indigo-50 p-4 text-sm text-indigo-900 border border-indigo-200 flex items-center justify-between">
+          <span>✓ {successMsg}</span>
+          <button onClick={() => setSuccessMsg(null)} className="text-indigo-500 hover:text-indigo-700">✕</button>
         </div>
       )}
 
       {/* Products Table */}
-      <div className="bg-white shadow-sm rounded-xl border border-slate-200 overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-200 bg-slate-50/50 flex justify-between items-center">
-          <h2 className="text-base font-semibold text-slate-900">
-            Catalogue Produits ({products.length})
+      <div className="bg-white shadow-xs rounded-2xl border border-slate-200/90 overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-200/80 bg-slate-50/60 flex justify-between items-center">
+          <h2 className="text-base font-bold text-slate-900">
+            كتالوج المنتجات ({products.length})
           </h2>
-          <span className="text-xs text-slate-500">Postgres Schema §4 / Multi-Devise COD</span>
+          <span className="text-xs text-slate-500">مزامنة مباشرة مع قاعدة البيانات</span>
         </div>
 
         {loading ? (
-          <div className="p-12 text-center text-slate-500">Chargement des produits...</div>
+          <div className="p-12 text-center text-slate-500">جاري تحميل المنتجات...</div>
         ) : products.length === 0 ? (
           <div className="p-12 text-center">
-            <p className="text-base font-medium text-slate-900">Aucun produit dans la base</p>
+            <p className="text-base font-medium text-slate-900">لا يوجد منتجات مسجلة حالياً</p>
             <p className="mt-1 text-sm text-slate-500">
-              Créez votre premier produit pour tester le rendu dynamique d&apos;attributs par catégorie.
+              أضف أول منتج إلى متجرك للبدء في استقبال طلبات الزبائن.
             </p>
             <button
               onClick={openCreateModal}
-              className="mt-4 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500"
+              className="mt-4 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-indigo-600/20 hover:bg-indigo-500"
             >
-              Créer un produit
+              + إضافة أول منتج
             </button>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
-              <thead className="bg-slate-50 text-xs font-semibold uppercase text-slate-500 tracking-wider">
+            <table className="min-w-full divide-y divide-slate-200 text-right text-sm">
+              <thead className="bg-slate-50/80 text-xs font-semibold text-slate-600">
                 <tr>
-                  <th className="px-6 py-3">Produit</th>
-                  <th className="px-6 py-3">Catégorie</th>
-                  <th className="px-6 py-3">Prix de base</th>
-                  <th className="px-6 py-3">Statut</th>
-                  <th className="px-6 py-3">Variantes & Stock</th>
-                  <th className="px-6 py-3 text-right">Actions</th>
+                  <th className="px-6 py-3.5">المنتج</th>
+                  <th className="px-6 py-3.5">التصنيف</th>
+                  <th className="px-6 py-3.5">السعر الأساسي</th>
+                  <th className="px-6 py-3.5">الحالة</th>
+                  <th className="px-6 py-3.5">المخزون والخيارات</th>
+                  <th className="px-6 py-3.5 text-left">الإجراءات</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 bg-white">
@@ -484,9 +495,10 @@ export default function AdminProduitsPage() {
                   const nameFr = p.product_translations?.find((t) => t.locale === 'fr')?.name || p.slug;
                   const nameAr = p.product_translations?.find((t) => t.locale === 'ar')?.name || '';
                   const catName =
+                    p.categories?.category_translations?.find((t) => t.locale === 'ar')?.name ||
                     p.categories?.category_translations?.find((t) => t.locale === 'fr')?.name ||
                     p.categories?.slug ||
-                    'General';
+                    'عام';
 
                   const totalStock = (p.product_variants || []).reduce(
                     (acc, v) => acc + (v.stock_qty || 0),
@@ -494,92 +506,92 @@ export default function AdminProduitsPage() {
                   );
 
                   return (
-                    <tr key={p.id} className="hover:bg-slate-50/50">
+                    <tr key={p.id} className="hover:bg-slate-50/60 transition-colors">
                       <td className="px-6 py-4 flex items-center gap-3">
                         {img ? (
                           <img
                             src={img}
-                            alt={nameFr}
-                            className="h-12 w-12 rounded-lg object-cover border border-slate-200"
+                            alt={nameAr || nameFr}
+                            className="h-12 w-12 rounded-xl object-cover border border-slate-200 shadow-2xs shrink-0"
                           />
                         ) : (
-                          <div className="h-12 w-12 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400 text-xs">
-                            No Img
+                          <div className="h-12 w-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 text-xs shrink-0">
+                            بدون صورة
                           </div>
                         )}
                         <div>
-                          <div className="font-semibold text-slate-900 flex items-center gap-1.5">
-                            {nameFr}
+                          <div className="font-bold text-slate-900 flex items-center gap-1.5">
+                            {nameAr || nameFr}
                             {p.is_featured && (
-                              <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-800" title="En vedette">
-                                ⭐ Vedette
+                              <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800" title="منتج مميز">
+                                ⭐ مميز
                               </span>
                             )}
                             {p.badge && (
-                              <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${
+                              <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
                                 p.badge === 'bestseller'
                                   ? 'bg-purple-100 text-purple-800'
                                   : p.badge === 'sale'
                                   ? 'bg-rose-100 text-rose-800'
-                                  : 'bg-blue-100 text-blue-800'
+                                  : 'bg-indigo-100 text-indigo-800'
                               }`}>
-                                {p.badge.toUpperCase()}
+                                {p.badge === 'bestseller' ? 'الأكثر طلباً' : p.badge === 'sale' ? 'تخفيض' : 'جديد'}
                               </span>
                             )}
                           </div>
-                          {nameAr && <div className="text-xs text-slate-500 font-arabic">{nameAr}</div>}
-                          <span className="text-xs text-slate-400 font-mono">{p.slug}</span>
+                          {nameFr && nameAr && <div className="text-xs text-slate-500 font-sans">{nameFr}</div>}
+                          <span className="text-[11px] text-slate-400 font-mono">/products/{p.slug}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 border border-blue-200">
+                        <span className="inline-flex items-center rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700 border border-slate-200">
                           {catName}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap font-medium text-slate-900">
-                        {p.base_price.toLocaleString()} DA
+                      <td className="px-6 py-4 whitespace-nowrap font-bold text-slate-900">
+                        {p.base_price.toLocaleString()} د.ج
                         {p.compare_at_price && (
-                          <span className="ms-2 text-xs text-slate-400 line-through">
-                            {p.compare_at_price.toLocaleString()} DA
+                          <span className="mr-2 text-xs text-slate-400 line-through">
+                            {p.compare_at_price.toLocaleString()} د.ج
                           </span>
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {p.status === 'active' ? (
-                          <span className="inline-flex items-center rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
-                            Active
+                          <span className="inline-flex items-center rounded-full bg-sky-50 px-2.5 py-0.5 text-xs font-semibold text-sky-700 border border-sky-200">
+                            نشط
                           </span>
                         ) : p.status === 'draft' ? (
-                          <span className="inline-flex items-center rounded-md bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20">
-                            Draft
+                          <span className="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-700 border border-amber-200">
+                            مسودة
                           </span>
                         ) : (
-                          <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
-                            Archived
+                          <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-600 border border-slate-200">
+                            مؤرشف
                           </span>
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-slate-600">
                         <div className="text-xs">
-                          <span className="font-semibold text-slate-900">
+                          <span className="font-bold text-slate-900">
                             {p.product_variants?.length || 0}
                           </span>{' '}
-                          variante(s) • Total:{' '}
+                          خيار • المخزون:{' '}
                           <span
                             className={
-                              totalStock <= 3 ? 'font-bold text-red-600' : 'font-semibold text-emerald-700'
+                              totalStock <= 3 ? 'font-bold text-rose-600' : 'font-semibold text-indigo-700'
                             }
                           >
-                            {totalStock} en stock
+                            {totalStock} قطعة
                           </span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right space-x-2">
+                      <td className="px-6 py-4 whitespace-nowrap text-left space-x-2">
                         <button
                           onClick={() => handleDeleteProduct(p.id, p.slug)}
-                          className="text-xs font-semibold text-red-600 hover:text-red-800"
+                          className="text-xs font-semibold text-rose-600 hover:text-rose-800 transition-colors"
                         >
-                          Supprimer
+                          حذف
                         </button>
                       </td>
                     </tr>
@@ -591,47 +603,55 @@ export default function AdminProduitsPage() {
         )}
       </div>
 
-      {/* Modal: Create Product with Dynamic Category Attributes */}
+      {/* Modal: Create Product */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-xl max-w-3xl w-full p-6 space-y-6 max-h-[92vh] overflow-y-auto">
-            <div className="flex justify-between items-center border-b border-slate-200 pb-4">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-3xl w-full p-6 sm:p-8 space-y-6 max-h-[92vh] overflow-y-auto border border-slate-100">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-4">
               <div>
-                <h3 className="text-lg font-bold text-slate-900">
-                  Ajouter un Produit
+                <h3 className="text-xl font-bold text-slate-900">
+                  إضافة منتج جديد للكتالوج
                 </h3>
-                <p className="text-xs text-slate-500">
-                  Formulaire dynamique adaptatif selon la catégorie sélectionnée.
+                <p className="text-xs text-slate-500 mt-0.5">
+                  أدخل تفاصيل المنتج وحدد الفئة لتحميل خياراتها تلقائياً.
                 </p>
               </div>
-
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(false)}
+                className="h-8 w-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center text-sm transition-colors"
+              >
+                ✕
+              </button>
             </div>
 
             <form onSubmit={handleSaveProduct} className="space-y-6">
-              {/* Category Selector (The Key trigger for Dynamic Fields!) */}
-              <div className="rounded-xl bg-emerald-50/60 p-4 border border-emerald-200">
-                <div className="flex items-center justify-between mb-1">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-emerald-900">
-                    1. Choisir la Catégorie (الفئة) *
+              {/* Category Selector */}
+              <div className="rounded-2xl bg-indigo-50/70 p-4 border border-indigo-200/80">
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-bold text-indigo-950">
+                    1. اختيار فئة المنتج (Catégorie) *
                   </label>
                   <Link
                     href="/admin/categories"
                     target="_blank"
-                    className="text-xs text-emerald-700 underline font-semibold hover:text-emerald-900"
+                    className="text-xs text-indigo-700 underline font-semibold hover:text-indigo-900"
                   >
-                    + إضافة فئة جديدة (Nouvelle Catégorie) ↗
+                    + إضافة فئة جديدة ↗
                   </Link>
                 </div>
                 <select
                   required
                   value={categoryId}
                   onChange={(e) => handleCategoryChange(e.target.value)}
-                  className="w-full rounded-lg border border-emerald-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900 focus:border-emerald-600 focus:outline-none"
+                  className="w-full rounded-xl border border-indigo-300 bg-white px-3.5 py-2.5 text-sm font-semibold text-slate-900 focus:border-indigo-600 focus:outline-none"
                 >
-                  <option value="">-- Sélectionnez une catégorie --</option>
+                  <option value="">-- اختر الفئة المناسبة --</option>
                   {categories.map((c) => {
                     const label =
-                      c.category_translations?.find((t) => t.locale === 'fr')?.name || c.slug;
+                      c.category_translations?.find((t) => t.locale === 'ar')?.name ||
+                      c.category_translations?.find((t) => t.locale === 'fr')?.name ||
+                      c.slug;
                     return (
                       <option key={c.id} value={c.id}>
                         {label} ({c.slug})
@@ -639,63 +659,78 @@ export default function AdminProduitsPage() {
                     );
                   })}
                 </select>
-                <p className="mt-1.5 text-xs text-emerald-800">
-                  En changeant de catégorie, les champs d&apos;attributs ci-dessous changent instantanément sans recharger la page.
+                <p className="mt-1.5 text-xs text-indigo-700">
+                  عند اختيار الفئة، سيتم تحميل خياراتها تلقائياً (مثل المقاسات والألوان المتوفرة).
                 </p>
               </div>
 
               {/* General Information */}
               <div className="space-y-4">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 border-b pb-1">
-                  2. Informations Générales
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 border-b border-slate-100 pb-2">
+                  2. البيانات الأساسية للمنتج
                 </h4>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="sm:col-span-2">
                     <label className="block text-xs font-semibold text-slate-700 mb-1">
-                      Slug URL *
+                      معرف الرابط (Slug URL) *
+                      <span className="mr-1 font-normal text-slate-400">(يتولّد تلقائياً من الاسم)</span>
                     </label>
-                    <input
-                      type="text"
-                      required
-                      value={slug}
-                      onChange={(e) => setSlug(e.target.value.toLowerCase())}
-                      placeholder="parfum-oud-royal, t-shirt-oversize"
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-600 focus:outline-none"
-                    />
+                    <div className="flex gap-2 items-center">
+                      <input
+                        type="text"
+                        required
+                        value={slug}
+                        onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+                        placeholder="slug-url-auto"
+                        className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-mono focus:border-indigo-600 focus:outline-none bg-slate-50/50"
+                      />
+                      {nameFr && (
+                        <button
+                          type="button"
+                          onClick={() => setSlug(toSlug(nameFr) + '-' + Date.now().toString().slice(-4))}
+                          className="shrink-0 rounded-xl bg-slate-100 hover:bg-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 transition-colors"
+                        >
+                          🔄 توليد
+                        </button>
+                      )}
+                    </div>
+                    {slug && (
+                      <p className="mt-1 text-[10px] text-slate-400 font-mono">/products/{slug}</p>
+                    )}
                   </div>
 
                   <div>
                     <label className="block text-xs font-semibold text-slate-700 mb-1">
-                      Statut *
+                      حالة المنتج *
                     </label>
                     <select
                       value={status}
                       onChange={(e) => setStatus(e.target.value as any)}
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-600 focus:outline-none"
+                      className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-indigo-600 focus:outline-none bg-white"
                     >
-                      <option value="active">Actif (En ligne)</option>
-                      <option value="draft">Brouillon</option>
-                      <option value="archived">Archivé</option>
+                      <option value="active">نشط (معروض في المتجر)</option>
+                      <option value="draft">مسودة (غير معروض)</option>
+                      <option value="archived">مؤرشف</option>
                     </select>
                   </div>
                 </div>
 
                 {/* Badge & Featured */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-3 rounded-lg border border-slate-200">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50/80 p-4 rounded-xl border border-slate-200/80">
                   <div>
                     <label className="block text-xs font-semibold text-slate-700 mb-1">
-                      Badge Produit (Affiché sur la carte)
+                      شارة تسويقية (تظهر على بطاقة المنتج)
                     </label>
                     <select
                       value={badge}
                       onChange={(e) => setBadge(e.target.value as any)}
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-600 focus:outline-none bg-white"
+                      className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-indigo-600 focus:outline-none bg-white"
                     >
-                      <option value="">Aucun badge</option>
-                      <option value="new">Nouveau (New)</option>
-                      <option value="sale">Promotion (Sale)</option>
-                      <option value="bestseller">Meilleure vente (Bestseller)</option>
+                      <option value="">بدون شارة</option>
+                      <option value="new">جديد (New)</option>
+                      <option value="sale">تخفيض (Sale)</option>
+                      <option value="bestseller">الأكثر طلباً (Bestseller)</option>
                     </select>
                   </div>
                   <div className="flex items-center pt-5">
@@ -704,10 +739,10 @@ export default function AdminProduitsPage() {
                         type="checkbox"
                         checked={isFeatured}
                         onChange={(e) => setIsFeatured(e.target.checked)}
-                        className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-600"
+                        className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-600"
                       />
                       <span className="text-xs font-semibold text-slate-800">
-                        ⭐ Mettre en avant sur la page d&apos;accueil (Featured)
+                        ⭐ تمييز المنتج وعرضه في الصفحة الرئيسية (Featured)
                       </span>
                     </label>
                   </div>
@@ -716,37 +751,41 @@ export default function AdminProduitsPage() {
                 {/* Multilingual Titles */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
-                    <span className="block text-[11px] font-medium text-slate-500 mb-1">Titre (Arabe) *</span>
+                    <span className="block text-[11px] font-semibold text-slate-700 mb-1">اسم المنتج بالعربية *</span>
                     <input
                       type="text"
                       required
                       dir="rtl"
                       value={nameAr}
                       onChange={(e) => setNameAr(e.target.value)}
-                      placeholder="اسم المنتج بالعربية"
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-600 focus:outline-none"
+                      placeholder="مثال: حجاب حريري تركي"
+                      className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-indigo-600 focus:outline-none"
                     />
                   </div>
                   <div>
-                    <span className="block text-[11px] font-medium text-slate-500 mb-1">Titre (Français) *</span>
+                    <span className="block text-[11px] font-semibold text-slate-700 mb-1">الاسم بالفرنسية / الرابط *</span>
                     <input
                       type="text"
                       required
                       value={nameFr}
-                      onChange={(e) => setNameFr(e.target.value)}
-                      placeholder="Nom en français"
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-600 focus:outline-none"
+                      onChange={(e) => {
+                        setNameFr(e.target.value);
+                        if (!slug || slug === toSlug(nameFr) || slug === '') {
+                          setSlug(toSlug(e.target.value));
+                        }
+                      }}
+                      placeholder="Hijab Soie Turc"
+                      className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-indigo-600 focus:outline-none"
                     />
                   </div>
                   <div>
-                    <span className="block text-[11px] font-medium text-slate-500 mb-1">Titre (Anglais) *</span>
+                    <span className="block text-[11px] font-semibold text-slate-700 mb-1">الاسم بالإنجليزية (اختياري)</span>
                     <input
                       type="text"
-                      required
                       value={nameEn}
                       onChange={(e) => setNameEn(e.target.value)}
-                      placeholder="English Title"
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-600 focus:outline-none"
+                      placeholder="Turkish Silk Hijab"
+                      className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-indigo-600 focus:outline-none"
                     />
                   </div>
                 </div>
@@ -755,7 +794,7 @@ export default function AdminProduitsPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-xs font-semibold text-slate-700 mb-1">
-                      Prix de base (DA) *
+                      السعر الأساسي (د.ج) *
                     </label>
                     <input
                       type="number"
@@ -763,20 +802,20 @@ export default function AdminProduitsPage() {
                       min="0"
                       value={basePrice}
                       onChange={(e) => setBasePrice(Number(e.target.value))}
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-600 focus:outline-none"
+                      className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-indigo-600 focus:outline-none font-bold"
                     />
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-slate-700 mb-1">
-                      Prix barré (DA)
+                      السعر القديم قبل التخفيض (د.ج)
                     </label>
                     <input
                       type="number"
                       min="0"
                       value={compareAtPrice}
                       onChange={(e) => setCompareAtPrice(e.target.value ? Number(e.target.value) : '')}
-                      placeholder="Optionnel"
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-600 focus:outline-none"
+                      placeholder="اختياري"
+                      className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-indigo-600 focus:outline-none"
                     />
                   </div>
                   <div>
@@ -784,26 +823,33 @@ export default function AdminProduitsPage() {
                       صورة المنتج الرئيسية
                     </label>
                     <div
-                      className="relative border-2 border-dashed border-slate-300 rounded-lg p-3 text-center cursor-pointer hover:border-emerald-500 hover:bg-emerald-50/30 transition-colors"
+                      className="relative border-2 border-dashed border-slate-300 rounded-xl p-3 text-center cursor-pointer hover:border-indigo-500 hover:bg-indigo-50/20 transition-all"
                       onClick={() => fileInputRef.current?.click()}
                     >
                       {imagePreview ? (
                         <div className="relative">
                           <img
                             src={imagePreview}
-                            alt="Preview"
-                            className="h-28 w-full object-contain rounded-md"
+                            alt="معاينة"
+                            className="h-28 w-full object-contain rounded-lg"
                           />
                           <button
                             type="button"
-                            onClick={(ev) => { ev.stopPropagation(); setImageFile(null); setImagePreview(''); if(fileInputRef.current) fileInputRef.current.value=''; }}
-                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600"
-                          >✕</button>
+                            onClick={(ev) => {
+                              ev.stopPropagation();
+                              setImageFile(null);
+                              setImagePreview('');
+                              if (fileInputRef.current) fileInputRef.current.value = '';
+                            }}
+                            className="absolute top-1 right-1 bg-rose-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-rose-600 shadow-xs"
+                          >
+                            ✕
+                          </button>
                         </div>
                       ) : (
                         <div className="py-3">
-                          <div className="text-2xl mb-1">📷</div>
-                          <p className="text-xs text-slate-500">اضغط لرفع صورة</p>
+                          <div className="text-2xl mb-1">📸</div>
+                          <p className="text-xs font-semibold text-slate-700">اضغط لرفع صورة</p>
                           <p className="text-[10px] text-slate-400">PNG, JPG, WEBP حتى 5MB</p>
                         </div>
                       )}
@@ -816,60 +862,61 @@ export default function AdminProduitsPage() {
                       />
                     </div>
                     {uploadingImage && (
-                      <p className="text-xs text-emerald-600 mt-1 text-center">⏳ جاري رفع الصورة...</p>
+                      <p className="text-xs text-indigo-600 mt-1 text-center font-semibold">⏳ جاري رفع الصورة إلى التخزين...</p>
                     )}
                   </div>
                 </div>
               </div>
 
               {/* DYNAMIC ATTRIBUTES SECTION */}
-              <div className="space-y-4 border-t border-slate-200 pt-4">
+              <div className="space-y-4 border-t border-slate-100 pt-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800">
-                      3. Attributs Spécifiques à la Catégorie
+                      3. الخصائص والخيارات الخاصة بالفئة
                     </h4>
                     <p className="text-xs text-slate-500">
-                      Chargés dynamiquement depuis la base de données pour la catégorie choisie.
+                      تتغير تلقائياً حسب الفئة المحددة (المقاسات، الألوان...).
                     </p>
                   </div>
                   {loadingAttrs && (
-                    <span className="text-xs text-emerald-600 font-semibold animate-pulse">
-                      Chargement des attributs...
+                    <span className="text-xs text-indigo-600 font-semibold animate-pulse">
+                      جاري تحميل الخصائص...
                     </span>
                   )}
                 </div>
 
                 {categoryAttributes.length === 0 ? (
-                  <div className="rounded-lg bg-slate-50 p-4 border border-dashed border-slate-300 text-center text-xs text-slate-500">
+                  <div className="rounded-xl bg-slate-50 p-4 border border-dashed border-slate-200 text-center text-xs text-slate-500">
                     {categoryId
-                      ? 'Aucun attribut spécifique n’est actuellement lié à cette catégorie (vous pouvez en lier dans /admin/attributs).'
-                      : 'Veuillez sélectionner une catégorie ci-dessus pour afficher ses attributs.'}
+                      ? 'لا توجد خصائص إضافية مرتبطة بهذه الفئة حالياً.'
+                      : 'يرجى اختيار الفئة أعلاه لعرض الخيارات والخصائص المتاحة.'}
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {/* A. Variant-Defining Attributes (e.g. Size, Color) */}
+                    {/* A. Variant-Defining Attributes */}
                     {categoryAttributes
                       .filter((a) => a.is_variant_defining)
                       .map((attr) => {
-                        const attrNameFr =
-                          attr.attribute_translations.find((t) => t.locale === 'fr')?.name || attr.slug;
                         const attrNameAr =
                           attr.attribute_translations.find((t) => t.locale === 'ar')?.name || '';
+                        const attrNameFr =
+                          attr.attribute_translations.find((t) => t.locale === 'fr')?.name || attr.slug;
 
                         return (
-                          <div key={attr.id} className="rounded-xl bg-amber-50/50 p-4 border border-amber-200 space-y-3">
+                          <div key={attr.id} className="rounded-2xl bg-amber-50/50 p-4 border border-amber-200/80 space-y-3">
                             <div className="flex items-center justify-between">
-                              <label className="text-xs font-bold text-amber-900">
-                                {attrNameFr} ({attrNameAr}) — <span className="underline">Définit des Variantes (SKU/Stock)</span>
+                              <label className="text-xs font-bold text-amber-950">
+                                {attrNameAr || attrNameFr} — <span className="underline">تحدد خيارات المنتج والمخزون</span>
                               </label>
-                              <span className="text-[11px] text-amber-700">Sélectionnez les options disponibles :</span>
+                              <span className="text-[11px] text-amber-800 font-medium">حدد الخيارات المتوفرة :</span>
                             </div>
 
                             <div className="flex flex-wrap gap-2">
                               {attr.attribute_options.map((opt) => {
                                 const isChecked = (selectedVariantOptions[attr.id] || []).includes(opt.id);
                                 const optLabel =
+                                  opt.attribute_option_translations?.find((t) => t.locale === 'ar')?.label ||
                                   opt.attribute_option_translations?.find((t) => t.locale === 'fr')?.label ||
                                   opt.value_slug;
 
@@ -878,14 +925,14 @@ export default function AdminProduitsPage() {
                                     key={opt.id}
                                     type="button"
                                     onClick={() => toggleVariantOption(attr, opt)}
-                                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
                                       isChecked
-                                        ? 'bg-amber-600 text-white border-amber-600 shadow-sm'
-                                        : 'bg-white text-slate-700 border-slate-300 hover:border-amber-400'
+                                        ? 'bg-amber-600 text-white border-amber-600 shadow-xs'
+                                        : 'bg-white text-slate-700 border-slate-200 hover:border-amber-400'
                                     }`}
                                   >
                                     {isChecked ? '✓ ' : '+ '}
-                                    {optLabel} ({opt.value_slug})
+                                    {optLabel}
                                   </button>
                                 );
                               })}
@@ -894,35 +941,35 @@ export default function AdminProduitsPage() {
                             {/* Generated Variant Stock Matrix */}
                             {variants.length > 0 && (
                               <div className="mt-3 pt-3 border-t border-amber-200/80 space-y-2">
-                                <span className="text-xs font-semibold text-amber-900 block">
-                                  Stock & Références par Variante ({variants.length}) :
+                                <span className="text-xs font-bold text-amber-950 block">
+                                  كمية المخزون لكل خيار ({variants.length}) :
                                 </span>
                                 <div className="space-y-2">
                                   {variants.map((v, vIdx) => (
                                     <div
                                       key={v.option_id}
-                                      className="flex items-center gap-3 bg-white p-2.5 rounded-lg border border-amber-200 text-xs"
+                                      className="flex items-center gap-3 bg-white p-2.5 rounded-xl border border-amber-200 text-xs shadow-2xs"
                                     >
-                                      <span className="font-bold text-slate-900 w-24">
-                                        Option: {v.option_label}
+                                      <span className="font-bold text-slate-900 w-28">
+                                        {v.option_label}
                                       </span>
                                       <div className="flex-1 flex items-center gap-2">
-                                        <label className="text-slate-500 text-[11px]">SKU:</label>
+                                        <label className="text-slate-500 text-[11px]">رمز SKU:</label>
                                         <input
                                           type="text"
                                           value={v.sku}
                                           onChange={(e) => updateVariant(vIdx, 'sku', e.target.value)}
-                                          className="w-32 rounded border border-slate-300 px-2 py-1 font-mono text-xs"
+                                          className="w-32 rounded-lg border border-slate-300 px-2 py-1 font-mono text-xs"
                                         />
                                       </div>
                                       <div className="flex items-center gap-2">
-                                        <label className="text-slate-500 text-[11px]">Stock:</label>
+                                        <label className="text-slate-500 text-[11px]">المخزون:</label>
                                         <input
                                           type="number"
                                           min="0"
                                           value={v.stock_qty}
                                           onChange={(e) => updateVariant(vIdx, 'stock_qty', Number(e.target.value))}
-                                          className="w-20 rounded border border-slate-300 px-2 py-1 text-xs"
+                                          className="w-20 rounded-lg border border-slate-300 px-2 py-1 text-xs font-bold"
                                         />
                                       </div>
                                     </div>
@@ -934,17 +981,19 @@ export default function AdminProduitsPage() {
                         );
                       })}
 
-                    {/* B. Non-Variant Display Attributes (e.g. Material, Origin) */}
+                    {/* B. Non-Variant Display Attributes */}
                     {categoryAttributes
                       .filter((a) => !a.is_variant_defining)
                       .map((attr) => {
+                        const attrNameAr =
+                          attr.attribute_translations.find((t) => t.locale === 'ar')?.name || '';
                         const attrNameFr =
                           attr.attribute_translations.find((t) => t.locale === 'fr')?.name || attr.slug;
 
                         return (
-                          <div key={attr.id} className="rounded-lg bg-slate-50 p-3 border border-slate-200">
+                          <div key={attr.id} className="rounded-xl bg-slate-50/80 p-3 border border-slate-200">
                             <label className="block text-xs font-semibold text-slate-700 mb-1">
-                              {attrNameFr} ({attr.slug})
+                              {attrNameAr || attrNameFr}
                             </label>
                             <select
                               value={displayAttributes[attr.id] || ''}
@@ -954,16 +1003,17 @@ export default function AdminProduitsPage() {
                                   [attr.id]: e.target.value,
                                 })
                               }
-                              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs focus:border-emerald-600 focus:outline-none"
+                              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-xs focus:border-indigo-600 focus:outline-none"
                             >
-                              <option value="">-- Choisir une valeur --</option>
+                              <option value="">-- اختر قيمة --</option>
                               {attr.attribute_options.map((opt) => {
                                 const optLabel =
+                                  opt.attribute_option_translations?.find((t) => t.locale === 'ar')?.label ||
                                   opt.attribute_option_translations?.find((t) => t.locale === 'fr')?.label ||
                                   opt.value_slug;
                                 return (
                                   <option key={opt.id} value={opt.id}>
-                                    {optLabel} ({opt.value_slug})
+                                    {optLabel}
                                   </option>
                                 );
                               })}
@@ -976,20 +1026,20 @@ export default function AdminProduitsPage() {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex justify-end gap-3 border-t border-slate-200 pt-4">
+              <div className="flex justify-end gap-3 border-t border-slate-100 pt-4">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                  className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
                 >
-                  Annuler
+                  إلغاء
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="rounded-lg bg-emerald-600 px-5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 disabled:opacity-50"
+                  className="rounded-xl bg-indigo-600 px-6 py-2 text-sm font-bold text-white shadow-md shadow-indigo-600/20 hover:bg-indigo-500 disabled:opacity-50 transition-all hover:-translate-y-0.5"
                 >
-                  {submitting ? 'Enregistrement...' : 'Enregistrer le Produit'}
+                  {submitting ? 'جاري الحفظ...' : 'حفظ ونشر المنتج'}
                 </button>
               </div>
             </form>
