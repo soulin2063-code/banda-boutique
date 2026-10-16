@@ -1,0 +1,55 @@
+{
+  "common": {
+    "welcome": "Bienvenue sur notre boutique",
+    "search_placeholder": "Rechercher des produits...",
+    "cart": "Panier",
+    "wishlist": "Favoris",
+    "login": "Connexion",
+    "logout": "Déconnexion",
+    "currency": "DA",
+    "loading": "Chargement...",
+    "error": "Une erreur s'est produite"
+  },
+  "navigation": {
+    "home": "Accueil",
+    "products": "Produits",
+    "categories": "Catégories",
+    "my_orders": "Mes Commandes",
+    "admin": "Administration"
+  },
+  "product": {
+    "details": "Détails du produit",
+    "price": "Prix",
+    "add_to_cart": "Ajouter au panier",
+    "out_of_stock": "Rupture de stock",
+    "in_stock": "En stock",
+    "low_stock": "Stock limité",
+    "select_variant": "Sélectionner une option",
+    "description": "Description",
+    "reviews": "Avis clients",
+    "related_products": "Produits similaires"
+  },
+  "checkout": {
+    "title": "Passer la commande (Paiement à la livraison)",
+    "full_name": "Nom complet",
+    "phone": "Numéro de téléphone",
+    "wilaya": "Wilaya",
+    "commune": "Commune",
+    "address": "Adresse détaillée",
+    "delivery_type": "Mode de livraison",
+    "home_delivery": "Livraison à domicile",
+    "desk_delivery": "Récupération au bureau (Stop-desk)",
+    "payment_method": "Mode de paiement",
+    "cod": "Paiement à la livraison (COD)",
+    "confirm_order": "Confirmer la commande",
+    "subtotal": "Sous-total",
+    "delivery_fee": "Frais de livraison",
+    "total": "Total",
+    "notes": "Remarques éventuelles"
+  },
+  "order_confirmation": {
+    "thank_you": "Merci pour votre commande !",
+    "order_number": "Numéro de commande",
+    "pending_notice": "Votre commande a été enregistrée. Notre service client vous appellera pour confirmation avant l'expédition."
+  }
+}

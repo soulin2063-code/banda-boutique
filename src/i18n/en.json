@@ -1,0 +1,55 @@
+{
+  "common": {
+    "welcome": "Welcome to our store",
+    "search_placeholder": "Search products...",
+    "cart": "Shopping Cart",
+    "wishlist": "Wishlist",
+    "login": "Login",
+    "logout": "Logout",
+    "currency": "DZD",
+    "loading": "Loading...",
+    "error": "An error occurred"
+  },
+  "navigation": {
+    "home": "Home",
+    "products": "Products",
+    "categories": "Categories",
+    "my_orders": "My Orders",
+    "admin": "Admin Dashboard"
+  },
+  "product": {
+    "details": "Product Details",
+    "price": "Price",
+    "add_to_cart": "Add to Cart",
+    "out_of_stock": "Out of Stock",
+    "in_stock": "In Stock",
+    "low_stock": "Low Stock",
+    "select_variant": "Select Option",
+    "description": "Description",
+    "reviews": "Customer Reviews",
+    "related_products": "Related Products"
+  },
+  "checkout": {
+    "title": "Complete Order (Cash on Delivery)",
+    "full_name": "Full Name",
+    "phone": "Phone Number",
+    "wilaya": "Wilaya (Province)",
+    "commune": "Commune (City)",
+    "address": "Detailed Address",
+    "delivery_type": "Delivery Option",
+    "home_delivery": "Home Delivery",
+    "desk_delivery": "Office Pickup (Stop-Desk)",
+    "payment_method": "Payment Method",
+    "cod": "Cash on Delivery (COD)",
+    "confirm_order": "Confirm Order Now",
+    "subtotal": "Subtotal",
+    "delivery_fee": "Delivery Fee",
+    "total": "Total",
+    "notes": "Additional Notes"
+  },
+  "order_confirmation": {
+    "thank_you": "Thank you for your order!",
+    "order_number": "Order Reference",
+    "pending_notice": "Your order has been placed. Our team will contact you by phone to confirm details before dispatch."
+  }
+}

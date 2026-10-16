@@ -1,0 +1,249 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Banda Feminine Luxury Design Tokens ────────────────────────────────────────────── */
+:root {
+  /* Primary CTA: Velvet Espresso / Deep Luxury Noir */
+  --accent:        #1A1615;
+  --accent-dark:   #0E0C0B;
+  --accent-gold:   #C59B76;
+  --accent-gold-light: #DFBE9F;
+  --accent-rose:   #E4B8AD;
+  --accent-rose-soft: #FBF4F1;
+  --accent-rose-deep: #B87D70;
+
+  /* Neutrals: Warm Pearl, Silk Cream & Sand Palette */
+  --gray-50:  #FAF7F5;
+  --gray-100: #F5EFEB;
+  --gray-200: #EAE1D9;
+  --gray-300: #D8CCC3;
+  --gray-500: #8C7F77;
+  --gray-700: #4A403A;
+  --gray-900: #1A1615;
+
+  /* Semantic */
+  --destructive: #be123c;
+  --sale:        #e11d48;
+
+  /* Surfaces & Borders */
+  --background: #FAF7F5;
+  --surface:    #ffffff;
+  --border:     #EAE1D9;
+
+  /* Type scale */
+  --text-xs:   0.75rem;   /* 12px */
+  --text-sm:   0.875rem;  /* 14px */
+  --text-base: 1rem;      /* 16px */
+  --text-lg:   1.25rem;   /* 20px */
+  --text-xl:   1.5rem;    /* 24px */
+  --text-2xl:  2rem;      /* 32px */
+  --text-3xl:  3rem;      /* 48px */
+
+  /* Radius: Ultra-smooth haute-couture corners */
+  --radius: 1.5rem; /* 24px */
+
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-arabic: 'Cairo', system-ui, sans-serif;
+}
+
+/* ─── Base ──────────────────────────────────────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+}
+
+html[dir="rtl"] body { font-family: var(--font-arabic); }
+html[dir="ltr"] body { font-family: var(--font-sans); }
+
+body {
+  background: var(--background);
+  color: var(--gray-900);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ─── Focus ─────────────────────────────────────────────────────────────────── */
+*:focus-visible {
+  outline: 2px solid var(--accent-gold);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--gray-100); }
+::-webkit-scrollbar-thumb { background: #DAC9BE; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
+
+/* ─── Feminine Luxury Micro-Animations ────────────────────────────────────────── */
+
+/* Floating ambient background glow */
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-14px) rotate(2deg);
+  }
+}
+
+@keyframes floatReverse {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(14px) rotate(-2deg);
+  }
+}
+
+.animate-float-slow {
+  animation: floatSlow 8s ease-in-out infinite;
+}
+
+.animate-float-reverse {
+  animation: floatReverse 10s ease-in-out infinite;
+}
+
+/* Subtle luxury sheen sweep on hover */
+@keyframes sheenSweep {
+  0% {
+    transform: translateX(-150%) skewX(-25deg);
+  }
+  100% {
+    transform: translateX(200%) skewX(-25deg);
+  }
+}
+
+.group:hover .sheen-overlay {
+  animation: sheenSweep 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Soft breathing rose pulse for exclusive badges */
+@keyframes pulseRose {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(228, 184, 173, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(228, 184, 173, 0);
+  }
+}
+.pulse-rose {
+  animation: pulseRose 2.4s ease-in-out infinite;
+}
+
+/* Soft gold shimmer for luxury highlights */
+@keyframes shimmerGold {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.gold-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(197, 155, 118, 0.1) 0%,
+    rgba(197, 155, 118, 0.35) 50%,
+    rgba(197, 155, 118, 0.1) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmerGold 3s infinite linear;
+}
+
+/* Continuous smooth ticker marquee for announcement ribbon */
+@keyframes marqueeRtl {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(50%); }
+}
+
+@keyframes marqueeLtr {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee-rtl {
+  display: flex;
+  width: max-content;
+  animation: marqueeRtl 30s linear infinite;
+}
+
+.animate-marquee-ltr {
+  display: flex;
+  width: max-content;
+  animation: marqueeLtr 30s linear infinite;
+}
+
+.animate-marquee-rtl:hover,
+.animate-marquee-ltr:hover {
+  animation-play-state: paused;
+}
+
+/* Wishlist bounce pop */
+@keyframes heartPop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.3) rotate(-8deg); }
+  80% { transform: scale(0.9) rotate(4deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+.heart-pop {
+  animation: heartPop 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* ─── Glassmorphism & Luxury Surfaces ─────────────────────────────────────────── */
+.glass-luxury {
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(234, 225, 217, 0.8);
+}
+
+.glass-luxury-dark {
+  background: rgba(26, 22, 21, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.luxury-card {
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.3s ease;
+}
+
+.luxury-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 18px 36px -12px rgba(212, 163, 115, 0.22);
+}
+
+/* ─── Loading shimmer (for skeletons) ───────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.shimmer {
+  background: linear-gradient(90deg, #F5EFEB 25%, #EAE1D9 50%, #F5EFEB 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* ─── Number inputs without spinners ────────────────────────────────────────── */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* ─── RTL logical overrides ─────────────────────────────────────────────────── */
+[dir="rtl"] .ltr-only { display: none !important; }
+[dir="ltr"] .rtl-only { display: none !important; }
+
+/* ─── Reduced motion ────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "common": {
+    "welcome": "مرحبا بك في متجرنا",
+    "search_placeholder": "ابحث عن المنتجات...",
+    "cart": "سلة التسوق",
+    "wishlist": "المفضلة",
+    "login": "تسجيل الدخول",
+    "logout": "تسجيل الخروج",
+    "currency": "د.ج",
+    "loading": "جاري التحميل...",
+    "error": "حدث خطأ ما"
+  },
+  "navigation": {
+    "home": "الرئيسية",
+    "products": "المنتجات",
+    "categories": "التصنيفات",
+    "my_orders": "طلباتي",
+    "admin": "لوحة التحكم"
+  },
+  "product": {
+    "details": "تفاصيل المنتج",
+    "price": "السعر",
+    "add_to_cart": "أضف إلى السلة",
+    "out_of_stock": "نفذت الكمية",
+    "in_stock": "متوفر",
+    "low_stock": "كمية محدودة متبقية",
+    "select_variant": "اختر الخيار",
+    "description": "الوصف",
+    "reviews": "التقييمات",
+    "related_products": "منتجات مشابهة"
+  },
+  "checkout": {
+    "title": "إتمام الطلب (الدفع عند الاستلام)",
+    "full_name": "الاسم الكامل",
+    "phone": "رقم الهاتف",
+    "wilaya": "الولاية",
+    "commune": "البلدية",
+    "address": "العنوان بالتفصيل",
+    "delivery_type": "نوع التوصيل",
+    "home_delivery": "توصيل للمنزل",
+    "desk_delivery": "استلام من مكتب التوصيل",
+    "payment_method": "طريقة الدفع",
+    "cod": "الدفع عند الاستلام (COD)",
+    "confirm_order": "تأكيد الطلب الآن",
+    "subtotal": "المجموع الفرعي",
+    "delivery_fee": "تكلفة التوصيل",
+    "total": "المجموع الإجمالي",
+    "notes": "ملاحظات إضافية"
+  },
+  "order_confirmation": {
+    "thank_you": "شكراً لطلبك!",
+    "order_number": "رقم الطلب",
+    "pending_notice": "تم تسجيل طلبك بنجاح. سيتصل بك فريقنا هاتفياً لتأكيد التفاصيل قبل الشحن."
+  }
+}

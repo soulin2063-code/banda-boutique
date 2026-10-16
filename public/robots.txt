@@ -1,0 +1,17 @@
+# robots.txt — ShopDZ
+# القرار الأمني: noindex لـ /admin يمنع محركات البحث من فهرسة لوحة التحكم
+# وتقليل احتمالية اكتشافها من قِبل المهاجمين عبر Google Dorks
+
+User-agent: *
+Disallow: /admin/
+Disallow: /api/admin/
+Disallow: /seller/
+
+# المتجر العام متاح للفهرسة
+Allow: /
+Allow: /ar/
+Allow: /fr/
+Allow: /en/
+
+# Sitemap
+Sitemap: https://shopdz.com/sitemap.xml
