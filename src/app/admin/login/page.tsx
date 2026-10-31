@@ -21,33 +21,7 @@ export default function AdminLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [devLoading, setDevLoading] = useState(false);
-  const [devMessage, setDevMessage] = useState<string | null>(null);
-
-  const handleDevSetup = async () => {
-    setDevLoading(true);
-    setDevMessage(null);
-    setError(null);
-    try {
-      const res = await fetch('/api/admin/dev-setup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: 'admin@boutique.dz', password: 'admin123456' }),
-      });
-      const data = await res.json();
-      if (res.ok && data.ok) {
-        setEmail('admin@boutique.dz');
-        setPassword('admin123456');
-        setDevMessage('✅ تم تجهيز حساب الأدمن! تم إدراج البيانات أدناه، اضغط على "تسجيل الدخول".');
-      } else {
-        setError(data.error || 'فشل إعداد الحساب');
-      }
-    } catch {
-      setError('تعذر الاتصال بخدمة تجهيز الحساب');
-    } finally {
-      setDevLoading(false);
-    }
-  };
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,7 +70,7 @@ export default function AdminLoginPage() {
       }
 
       // 4. توجيه المتصفح المباشر لضمان شحن الـ cookies وتحديث الشاشة فوراً
-      setDevMessage('✅ تم التحقق بنجاح! جاري التوجيه إلى لوحة التحكم...');
+      setSuccessMessage('✅ تم التحقق بنجاح! جاري التوجيه إلى لوحة التحكم...');
       window.location.href = '/admin';
     } catch {
       setError('خطأ في الاتصال. حاول مجدداً.');
@@ -129,6 +103,12 @@ export default function AdminLoginPage() {
             {error && (
               <div className="mb-5 rounded-xl bg-red-500/10 border border-red-500/30 p-4 text-sm text-red-300">
                 <strong>⚠️</strong> {error}
+              </div>
+            )}
+
+            {successMessage && (
+              <div className="mb-5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 p-4 text-sm text-emerald-300">
+                {successMessage}
               </div>
             )}
 
@@ -197,33 +177,6 @@ export default function AdminLoginPage() {
                 )}
               </button>
             </form>
-
-            {/* Quick Dev Auto-Setup Helper */}
-            <div className="mt-6 rounded-2xl bg-emerald-950/40 border border-emerald-500/20 p-4 text-center">
-              <p className="text-xs text-emerald-300 font-semibold mb-2.5">
-                ⚡ إعداد سريع لحساب الأدمن (بيئة التطوير)
-              </p>
-              <button
-                type="button"
-                onClick={handleDevSetup}
-                disabled={devLoading}
-                className="w-full py-2.5 px-3 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-xs font-bold border border-emerald-500/30 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-              >
-                {devLoading ? (
-                  <>
-                    <div className="h-3.5 w-3.5 border-2 border-emerald-300/30 border-t-emerald-300 rounded-full animate-spin" />
-                    <span>جاري التجهيز في Supabase...</span>
-                  </>
-                ) : (
-                  <span>إنشاء / تفعيل حساب الأدمن تلقائياً (بنقرة واحدة)</span>
-                )}
-              </button>
-              {devMessage && (
-                <p className="mt-2.5 text-[11px] text-emerald-400 font-medium bg-emerald-950/60 p-2 rounded-lg border border-emerald-500/30">
-                  {devMessage}
-                </p>
-              )}
-            </div>
 
             {/* Security notice */}
             <div className="mt-6 pt-6 border-t border-white/10">
