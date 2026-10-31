@@ -15,6 +15,7 @@ import {
   ShieldAlert,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useAdminLanguage } from '@/lib/i18n/AdminLanguageContext';
 
 export interface SummaryCardsProps {
   totalRevenue: number;
@@ -39,16 +40,18 @@ export function SummaryCards({
   revenueGrowthPercent = 14.5,
   ordersGrowthPercent = 8.2,
 }: SummaryCardsProps) {
+  const { t, locale } = useAdminLanguage();
+
   const cards = [
     {
-      title: 'المبيعات الإجمالية',
-      value: `${totalRevenue.toLocaleString()} د.ج`,
-      subtitle: 'حجم المداخيل المسجلة',
+      title: t.total_revenue,
+      value: `${totalRevenue.toLocaleString()} ${t.currency}`,
+      subtitle: t.total_revenue_sub,
       icon: DollarSign,
       trend: {
         value: `${revenueGrowthPercent >= 0 ? '+' : ''}${revenueGrowthPercent}%`,
         isPositive: revenueGrowthPercent >= 0,
-        label: 'مقارنة بالأسبوع الماضي',
+        label: t.compare_last_week,
       },
       gradient: 'from-indigo-500/10 to-indigo-500/5',
       iconBg: 'bg-indigo-600 text-white shadow-indigo-600/30',
@@ -56,14 +59,14 @@ export function SummaryCards({
       href: '/admin/commandes',
     },
     {
-      title: 'صافي الأرباح التقديري',
-      value: `${netProfit.toLocaleString()} د.ج`,
-      subtitle: 'تقدير بهامش ربح ~65%',
+      title: t.net_profit,
+      value: `${netProfit.toLocaleString()} ${t.currency}`,
+      subtitle: t.net_profit_sub,
       icon: Sparkles,
       trend: {
         value: '+12.4%',
         isPositive: true,
-        label: 'أداء مالي ممتاز',
+        label: t.excellent_perf,
       },
       gradient: 'from-emerald-500/10 to-emerald-500/5',
       iconBg: 'bg-emerald-600 text-white shadow-emerald-600/30',
@@ -71,14 +74,14 @@ export function SummaryCards({
       href: '/admin/commandes',
     },
     {
-      title: 'إجمالي الطلبيات',
+      title: t.total_orders,
       value: totalOrders.toLocaleString(),
-      subtitle: 'كافة الطلبيات عبر 58 ولاية',
+      subtitle: t.total_orders_sub,
       icon: ShoppingBag,
       trend: {
         value: `${ordersGrowthPercent >= 0 ? '+' : ''}${ordersGrowthPercent}%`,
         isPositive: ordersGrowthPercent >= 0,
-        label: 'معدل طلب مرتفع',
+        label: t.compare_last_week,
       },
       gradient: 'from-blue-500/10 to-blue-500/5',
       iconBg: 'bg-blue-600 text-white shadow-blue-600/30',
@@ -86,14 +89,14 @@ export function SummaryCards({
       href: '/admin/commandes',
     },
     {
-      title: 'متوسط قيمة الطلب (AOV)',
-      value: `${Math.round(averageOrderValue).toLocaleString()} د.ج`,
-      subtitle: 'متوسط سلة المشتريات للزبون',
+      title: t.avg_order_value,
+      value: `${Math.round(averageOrderValue).toLocaleString()} ${t.currency}`,
+      subtitle: t.avg_order_value_sub,
       icon: Receipt,
       trend: {
         value: '+5.3%',
         isPositive: true,
-        label: 'مقارنة بالشهر السابق',
+        label: t.compare_last_week,
       },
       gradient: 'from-purple-500/10 to-purple-500/5',
       iconBg: 'bg-purple-600 text-white shadow-purple-600/30',
@@ -101,11 +104,18 @@ export function SummaryCards({
       href: '/admin/commandes',
     },
     {
-      title: 'بانتظار التأكيد الهاتفي',
+      title: t.pending_orders,
       value: pendingOrders.toString(),
-      subtitle: 'طلبات COD تحتاج اتصال سريع',
+      subtitle: t.pending_orders_sub,
       icon: Clock,
-      badge: pendingOrders > 0 ? `${pendingOrders} مستعجل` : 'لا توجد طلبات',
+      badge:
+        pendingOrders > 0
+          ? `${pendingOrders} ${locale === 'ar' ? 'مستعجل' : locale === 'fr' ? 'urgent' : 'urgent'}`
+          : locale === 'ar'
+          ? 'لا توجد طلبات'
+          : locale === 'fr'
+          ? 'Aucune commande'
+          : 'No orders',
       badgeColor:
         pendingOrders > 0
           ? 'bg-amber-100 text-amber-800 border-amber-300 animate-pulse'
@@ -116,17 +126,34 @@ export function SummaryCards({
       href: '/admin/commandes?status=pending',
     },
     {
-      title: 'نسبة الإلغاء',
+      title: t.cancellation_rate,
       value: `${cancellationRate.toFixed(1)}%`,
-      subtitle: 'طلبات ملغاة قبل التوصيل',
+      subtitle: t.cancellation_rate_sub,
       icon: Percent,
       trend: {
-        value: cancellationRate < 10 ? 'ممتاز' : 'يحتاج متابعة',
+        value:
+          cancellationRate < 10
+            ? locale === 'ar'
+              ? 'ممتاز'
+              : locale === 'fr'
+              ? 'Excellent'
+              : 'Good'
+            : locale === 'ar'
+            ? 'يحتاج متابعة'
+            : locale === 'fr'
+            ? 'À surveiller'
+            : 'Attention',
         isPositive: cancellationRate < 10,
-        label: 'معدل استرجاع صحي',
+        label: t.normal_rate,
       },
-      gradient: cancellationRate < 10 ? 'from-teal-500/10 to-teal-500/5' : 'from-rose-500/10 to-rose-500/5',
-      iconBg: cancellationRate < 10 ? 'bg-teal-600 text-white shadow-teal-600/30' : 'bg-rose-500 text-white shadow-rose-500/30',
+      gradient:
+        cancellationRate < 10
+          ? 'from-teal-500/10 to-teal-500/5'
+          : 'from-rose-500/10 to-rose-500/5',
+      iconBg:
+        cancellationRate < 10
+          ? 'bg-teal-600 text-white shadow-teal-600/30'
+          : 'bg-rose-500 text-white shadow-rose-500/30',
       borderHover: cancellationRate < 10 ? 'hover:border-teal-400' : 'hover:border-rose-400',
       href: '/admin/commandes?status=cancelled',
     },
@@ -218,14 +245,38 @@ export function SummaryCards({
             </div>
             <div>
               <p className="text-xs sm:text-sm font-bold text-slate-900">
-                تنبيه نواقص المخزون: يوجد{' '}
-                <span className="text-rose-600 font-black font-mono">
-                  {lowStockCount}
-                </span>{' '}
-                متغيرات منتجات وصلت إلى حد إعادة الطلب الأدنى أو نفدت!
+                {locale === 'ar' ? (
+                  <>
+                    تنبيه نواقص المخزون: يوجد{' '}
+                    <span className="text-rose-600 font-black font-mono">
+                      {lowStockCount}
+                    </span>{' '}
+                    متغيرات منتجات وصلت إلى حد إعادة الطلب الأدنى أو نفدت!
+                  </>
+                ) : locale === 'fr' ? (
+                  <>
+                    Alerte stock faible :{' '}
+                    <span className="text-rose-600 font-black font-mono">
+                      {lowStockCount}
+                    </span>{' '}
+                    variantes ont atteint le seuil critique ou sont épuisées !
+                  </>
+                ) : (
+                  <>
+                    Low Stock Alert:{' '}
+                    <span className="text-rose-600 font-black font-mono">
+                      {lowStockCount}
+                    </span>{' '}
+                    variants reached minimum threshold or are out of stock!
+                  </>
+                )}
               </p>
               <p className="text-[11px] text-slate-500">
-                يرجى تزويد المخزون لمنع توقف الطلبيات والبيع المباشر للزبائن.
+                {locale === 'ar'
+                  ? 'يرجى تزويد المخزون لمنع توقف الطلبيات والبيع المباشر للزبائن.'
+                  : locale === 'fr'
+                  ? 'Veuillez réapprovisionner pour éviter les ruptures et blocages de vente.'
+                  : 'Please restock inventory to prevent checkout blocking and missed sales.'}
               </p>
             </div>
           </div>
@@ -233,7 +284,13 @@ export function SummaryCards({
             href="/admin/stock"
             className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-md shadow-rose-600/20 transition-all shrink-0 min-h-[38px]"
           >
-            <span>فحص وتزويد المخزون</span>
+            <span>
+              {locale === 'ar'
+                ? 'فحص وتزويد المخزون'
+                : locale === 'fr'
+                ? 'Vérifier & Réapprovisionner'
+                : 'Inspect & Restock'}
+            </span>
             <ArrowUpRight className="h-3.5 w-3.5" />
           </Link>
         </div>

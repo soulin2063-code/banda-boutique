@@ -11,6 +11,7 @@ import {
   CartesianGrid,
 } from 'recharts';
 import { DollarSign, ShoppingBag, TrendingUp, Calendar } from 'lucide-react';
+import { useAdminLanguage } from '@/lib/i18n/AdminLanguageContext';
 
 export interface DailySalesData {
   date: string;
@@ -23,6 +24,7 @@ interface SalesChartProps {
 }
 
 export function SalesChart({ data }: SalesChartProps) {
+  const { t, locale, dir } = useAdminLanguage();
   const [metric, setMetric] = useState<'amount' | 'orders'>('amount');
 
   // If no data, supply clean standard preview
@@ -30,13 +32,13 @@ export function SalesChart({ data }: SalesChartProps) {
     data.length > 0
       ? data
       : [
-          { date: '12 أكتوبر', amount: 18500, orders: 4 },
-          { date: '13 أكتوبر', amount: 26000, orders: 6 },
-          { date: '14 أكتوبر', amount: 31500, orders: 7 },
-          { date: '15 أكتوبر', amount: 22000, orders: 5 },
-          { date: '16 أكتوبر', amount: 48000, orders: 11 },
-          { date: '17 أكتوبر', amount: 56000, orders: 13 },
-          { date: 'اليوم', amount: 64500, orders: 15 },
+          { date: '12', amount: 18500, orders: 4 },
+          { date: '13', amount: 26000, orders: 6 },
+          { date: '14', amount: 31500, orders: 7 },
+          { date: '15', amount: 22000, orders: 5 },
+          { date: '16', amount: 48000, orders: 11 },
+          { date: '17', amount: 56000, orders: 13 },
+          { date: t.chart_today, amount: 64500, orders: 15 },
         ];
 
   const totalPeriodAmount = chartData.reduce((acc, curr) => acc + curr.amount, 0);
@@ -52,11 +54,11 @@ export function SalesChart({ data }: SalesChartProps) {
               <TrendingUp className="h-4 w-4" />
             </div>
             <h3 className="text-base font-bold text-slate-900">
-              تحليل المبيعات وحركة الطلبات
+              {t.chart_title}
             </h3>
           </div>
           <p className="text-xs text-slate-500 mt-1">
-            متابعة حركة المداخيل والطلبيات اليومية المكتملة
+            {t.chart_sub}
           </p>
         </div>
 
@@ -72,7 +74,7 @@ export function SalesChart({ data }: SalesChartProps) {
             }`}
           >
             <DollarSign className="h-3.5 w-3.5" />
-            <span>المداخيل (د.ج)</span>
+            <span>{t.chart_revenue_metric}</span>
           </button>
 
           <button
@@ -85,7 +87,7 @@ export function SalesChart({ data }: SalesChartProps) {
             }`}
           >
             <ShoppingBag className="h-3.5 w-3.5" />
-            <span>عدد الطلبات</span>
+            <span>{t.chart_orders_metric}</span>
           </button>
         </div>
       </div>
@@ -93,23 +95,25 @@ export function SalesChart({ data }: SalesChartProps) {
       {/* Mini Stats Indicator */}
       <div className="flex items-center gap-4 text-xs bg-slate-50/70 p-3 rounded-xl border border-slate-100 flex-wrap">
         <div>
-          <span className="text-slate-500">إجمالي الفترة: </span>
+          <span className="text-slate-500">{t.chart_period_total}: </span>
           <span className="font-bold text-slate-900 font-mono">
-            {totalPeriodAmount.toLocaleString()} د.ج
+            {totalPeriodAmount.toLocaleString()} {t.currency}
           </span>
         </div>
         <div className="h-3 w-px bg-slate-200" />
         <div>
-          <span className="text-slate-500">مجموع الطلبات: </span>
+          <span className="text-slate-500">{t.chart_orders_total}: </span>
           <span className="font-bold text-slate-900 font-mono">
-            {totalPeriodOrders} طلب
+            {totalPeriodOrders}
           </span>
         </div>
         <div className="h-3 w-px bg-slate-200" />
         <div>
-          <span className="text-slate-500">متوسط اليوم: </span>
+          <span className="text-slate-500">
+            {locale === 'ar' ? 'متوسط اليوم: ' : locale === 'fr' ? 'Moyenne / jour : ' : 'Daily avg: '}
+          </span>
           <span className="font-bold text-indigo-600 font-mono">
-            {Math.round(totalPeriodAmount / (chartData.length || 1)).toLocaleString()} د.ج
+            {Math.round(totalPeriodAmount / (chartData.length || 1)).toLocaleString()} {t.currency}
           </span>
         </div>
       </div>
@@ -153,7 +157,7 @@ export function SalesChart({ data }: SalesChartProps) {
                   const item = payload[0].payload as DailySalesData;
                   return (
                     <div
-                      dir="rtl"
+                      dir={dir}
                       className="rounded-xl bg-slate-950/95 backdrop-blur-md p-3 text-white shadow-xl border border-slate-800 text-xs space-y-1.5"
                     >
                       <div className="font-bold text-slate-300 border-b border-slate-800 pb-1 flex items-center gap-1.5">
@@ -161,15 +165,15 @@ export function SalesChart({ data }: SalesChartProps) {
                         <span>{label}</span>
                       </div>
                       <div className="flex items-center justify-between gap-4">
-                        <span className="text-slate-400">المداخيل:</span>
+                        <span className="text-slate-400">{t.chart_revenue_metric}:</span>
                         <span className="font-bold text-emerald-400 font-mono">
-                          {item.amount.toLocaleString()} د.ج
+                          {item.amount.toLocaleString()} {t.currency}
                         </span>
                       </div>
                       <div className="flex items-center justify-between gap-4">
-                        <span className="text-slate-400">عدد الطلبات:</span>
+                        <span className="text-slate-400">{t.chart_orders_metric}:</span>
                         <span className="font-bold text-sky-400 font-mono">
-                          {item.orders} طلب
+                          {item.orders}
                         </span>
                       </div>
                     </div>

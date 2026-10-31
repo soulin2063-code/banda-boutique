@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useAdminLanguage } from '@/lib/i18n/AdminLanguageContext';
 import {
   Phone,
   MessageCircle,
@@ -95,9 +96,30 @@ export function RecentOrdersTable({
   initialOrders,
   wilayaMap = {},
 }: RecentOrdersTableProps) {
+  const { t, locale, dir } = useAdminLanguage();
+  const isRtl = dir === 'rtl';
   const [orders, setOrders] = useState<RecentOrderItem[]>(initialOrders);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const getStatusLabel = (status: OrderStatus) => {
+    switch (status) {
+      case 'pending':
+        return t.status_pending;
+      case 'confirmed':
+        return t.status_confirmed;
+      case 'shipped':
+        return t.status_shipped;
+      case 'delivered':
+        return t.status_delivered;
+      case 'returned':
+        return t.status_returned;
+      case 'cancelled':
+        return t.status_cancelled;
+      default:
+        return status;
+    }
+  };
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -113,14 +135,26 @@ export function RecentOrdersTable({
         body: JSON.stringify({ status: 'confirmed' }),
       });
 
-      if (!res.ok) throw new Error('فشل تحديث حالة الطلب');
+      if (!res.ok) throw new Error('Failed to update status');
 
       setOrders((prev) =>
         prev.map((o) => (o.id === orderId ? { ...o, status: 'confirmed' } : o))
       );
-      showToast('✓ تم تأكيد الطلب بنجاح ونقله إلى قسم التجهيز للشحن');
+      showToast(
+        locale === 'ar'
+          ? '✓ تم تأكيد الطلب بنجاح ونقله إلى قسم التجهيز للشحن'
+          : locale === 'fr'
+          ? '✓ Commande confirmée et envoyée à la préparation'
+          : '✓ Order successfully confirmed and sent to shipping prep'
+      );
     } catch {
-      showToast('⚠️ حدث خطأ أثناء محاولة تأكيد الطلب');
+      showToast(
+        locale === 'ar'
+          ? '⚠️ حدث خطأ أثناء محاولة تأكيد الطلب'
+          : locale === 'fr'
+          ? '⚠️ Erreur lors de la confirmation'
+          : '⚠️ Error while confirming order'
+      );
     } finally {
       setUpdatingId(null);
     }
@@ -149,10 +183,10 @@ export function RecentOrdersTable({
           </div>
           <div>
             <h3 className="text-base font-bold text-slate-900">
-              أحدث الطلبات الواردة (COD)
+              {t.recent_orders_title}
             </h3>
             <p className="text-xs text-slate-500">
-              اتصال مباشر وتأكيد سريع بنقرة واحدة
+              {t.recent_orders_sub}
             </p>
           </div>
         </div>
@@ -161,28 +195,28 @@ export function RecentOrdersTable({
           href="/admin/commandes"
           className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-colors self-start sm:self-auto"
         >
-          <span>عرض كافة الطلبات</span>
-          <ChevronLeft className="h-4 w-4" />
+          <span>{t.view_all_orders}</span>
+          {isRtl ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
         </Link>
       </div>
 
       {orders.length === 0 ? (
         <div className="p-12 text-center text-slate-400 text-xs">
-          لا توجد طلبات حديثة مسجلة حالياً
+          {t.no_orders_yet}
         </div>
       ) : (
         <>
           {/* ── DESKTOP HIGH-DENSITY TABLE ───────────────────────────── */}
           <div className="hidden md:block overflow-x-auto">
-            <table className="w-full text-right text-xs">
+            <table className={`w-full ${isRtl ? 'text-right' : 'text-left'} text-xs`}>
               <thead className="bg-slate-50/80 text-slate-500 font-bold border-b border-slate-200/80">
                 <tr>
-                  <th className="py-3 px-5">رقم الطلب</th>
-                  <th className="py-3 px-5">الزبون والهاتف</th>
-                  <th className="py-3 px-5">الولاية والتوصيل</th>
-                  <th className="py-3 px-5">المبلغ الإجمالي</th>
-                  <th className="py-3 px-5">حالة الطلب</th>
-                  <th className="py-3 px-5 text-center">إجراء سريع</th>
+                  <th className="py-3 px-5">{t.col_order}</th>
+                  <th className="py-3 px-5">{t.col_customer}</th>
+                  <th className="py-3 px-5">{t.col_wilaya}</th>
+                  <th className="py-3 px-5">{t.col_amount}</th>
+                  <th className="py-3 px-5">{t.col_status}</th>
+                  <th className="py-3 px-5 text-center">{t.col_actions}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-medium">
@@ -193,8 +227,8 @@ export function RecentOrdersTable({
                     order.addresses?.wilaya_id && wilayaMap[order.addresses.wilaya_id]
                       ? wilayaMap[order.addresses.wilaya_id]
                       : order.addresses?.wilaya_id
-                      ? `ولاية ${order.addresses.wilaya_id}`
-                      : 'غير محدد';
+                      ? `${order.addresses.wilaya_id}`
+                      : '-';
                   const isPending = order.status === 'pending';
                   const phoneClean = order.customers?.phone?.replace(/\D/g, '') || '';
                   const shortId = order.id.slice(0, 8).toUpperCase();
@@ -215,19 +249,22 @@ export function RecentOrdersTable({
                           #{shortId}
                         </Link>
                         <span className="text-[11px] text-slate-400">
-                          {new Date(order.created_at).toLocaleDateString('ar-DZ', {
-                            month: 'short',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
+                          {new Date(order.created_at).toLocaleDateString(
+                            locale === 'ar' ? 'ar-DZ' : locale === 'fr' ? 'fr-FR' : 'en-US',
+                            {
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            }
+                          )}
                         </span>
                       </td>
 
                       {/* Customer Info & Quick Phone/WhatsApp */}
                       <td className="py-3.5 px-5">
                         <div className="font-bold text-slate-900">
-                          {order.customers?.full_name || 'زبون غير مسجل'}
+                          {order.customers?.full_name || (locale === 'ar' ? 'زبون غير مسجل' : 'Client anonyme')}
                         </div>
                         <div className="flex items-center gap-1.5 mt-1">
                           {order.customers?.phone && (
@@ -235,19 +272,21 @@ export function RecentOrdersTable({
                               <a
                                 href={`tel:${order.customers.phone}`}
                                 className="inline-flex items-center gap-1 text-[11px] font-mono text-slate-600 hover:text-indigo-600 bg-slate-100 hover:bg-slate-200 px-2 py-0.5 rounded-md transition-colors"
-                                title="اتصال هاتفي مباشر"
+                                title={t.call_btn}
                               >
                                 <Phone className="h-3 w-3 text-slate-500" />
                                 <span>{order.customers.phone}</span>
                               </a>
                               <a
                                 href={`https://wa.me/213${phoneClean.slice(-9)}?text=${encodeURIComponent(
-                                  `مرحباً ${order.customers.full_name}، نتواصل معك بخصوص طلبيتك رقم #${shortId} من متجرنا. هل تؤكد استلام الطلب؟`
+                                  locale === 'ar'
+                                    ? `مرحباً ${order.customers.full_name}، نتواصل معك بخصوص طلبيتك رقم #${shortId} من متجرنا. هل تؤكد استلام الطلب؟`
+                                    : `Bonjour ${order.customers.full_name}, nous vous contactons concernant votre commande #${shortId}. Confirmez-vous ?`
                                 )}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="p-1 rounded-md bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors"
-                                title="مراسلة عبر واتساب"
+                                title={t.whatsapp_btn}
                               >
                                 <MessageCircle className="h-3.5 w-3.5" />
                               </a>
@@ -263,14 +302,14 @@ export function RecentOrdersTable({
                         </div>
                         <span className="text-[10px] text-slate-400">
                           {order.addresses?.delivery_type === 'home'
-                            ? 'توصيل للمنزل'
-                            : 'استلام من المكتب'}
+                            ? t.home_delivery
+                            : t.desk_delivery}
                         </span>
                       </td>
 
                       {/* Amount */}
                       <td className="py-3.5 px-5 font-mono font-bold text-slate-900 text-sm">
-                        {order.total.toLocaleString()} د.ج
+                        {order.total.toLocaleString()} {t.currency}
                       </td>
 
                       {/* Status Badge */}
@@ -279,7 +318,7 @@ export function RecentOrdersTable({
                           className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold border ${statusInfo.bg} ${statusInfo.text} ${statusInfo.border}`}
                         >
                           <StatusIcon className="h-3 w-3" />
-                          <span>{statusInfo.label}</span>
+                          <span>{getStatusLabel(order.status)}</span>
                         </span>
                       </td>
 
@@ -293,13 +332,15 @@ export function RecentOrdersTable({
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xs transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
                           >
                             <CheckCircle2 className="h-3.5 w-3.5" />
-                            <span>تأكيد الآن</span>
+                            <span>
+                              {locale === 'ar' ? 'تأكيد الآن' : locale === 'fr' ? 'Confirmer' : 'Confirm'}
+                            </span>
                           </button>
                         ) : (
                           <Link
                             href={`/admin/commandes?search=${shortId}`}
                             className="text-slate-400 hover:text-slate-600 p-1.5 inline-block"
-                            title="عرض تفاصيل الطلب"
+                            title={t.view_all_orders}
                           >
                             <ArrowUpRight className="h-4 w-4" />
                           </Link>
@@ -321,8 +362,8 @@ export function RecentOrdersTable({
                 order.addresses?.wilaya_id && wilayaMap[order.addresses.wilaya_id]
                   ? wilayaMap[order.addresses.wilaya_id]
                   : order.addresses?.wilaya_id
-                  ? `ولاية ${order.addresses.wilaya_id}`
-                  : 'غير محدد';
+                  ? `${order.addresses.wilaya_id}`
+                  : '-';
               const isPending = order.status === 'pending';
               const phoneClean = order.customers?.phone?.replace(/\D/g, '') || '';
               const shortId = order.id.slice(0, 8).toUpperCase();
@@ -344,25 +385,25 @@ export function RecentOrdersTable({
                         className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${statusInfo.bg} ${statusInfo.text} ${statusInfo.border}`}
                       >
                         <StatusIcon className="h-2.5 w-2.5" />
-                        <span>{statusInfo.label}</span>
+                        <span>{getStatusLabel(order.status)}</span>
                       </span>
                     </div>
 
                     <span className="font-mono font-black text-slate-900 text-sm">
-                      {order.total.toLocaleString()} د.ج
+                      {order.total.toLocaleString()} {t.currency}
                     </span>
                   </div>
 
                   {/* Customer & Location */}
                   <div className="text-xs">
                     <div className="font-bold text-slate-800">
-                      {order.customers?.full_name || 'زبون غير مسجل'}
+                      {order.customers?.full_name || (locale === 'ar' ? 'زبون غير مسجل' : 'Client')}
                     </div>
                     <div className="text-slate-500 mt-0.5">
                       {wilayaName} •{' '}
                       {order.addresses?.delivery_type === 'home'
-                        ? 'توصيل للمنزل'
-                        : 'استلام من المكتب'}
+                        ? t.home_delivery
+                        : t.desk_delivery}
                     </div>
                   </div>
 
@@ -375,19 +416,21 @@ export function RecentOrdersTable({
                           className="flex-1 min-h-[44px] rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
                         >
                           <Phone className="h-4 w-4 text-slate-600" />
-                          <span>اتصال</span>
+                          <span>{t.call_btn}</span>
                         </a>
 
                         <a
                           href={`https://wa.me/213${phoneClean.slice(-9)}?text=${encodeURIComponent(
-                            `مرحباً ${order.customers.full_name}، نتواصل معك بخصوص طلبيتك رقم #${shortId} من متجرنا.`
+                            locale === 'ar'
+                              ? `مرحباً ${order.customers.full_name}، نتواصل معك بخصوص طلبيتك رقم #${shortId} من متجرنا.`
+                              : `Bonjour ${order.customers.full_name}, concernant votre commande #${shortId}.`
                           )}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="min-h-[44px] px-3.5 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
                         >
                           <MessageCircle className="h-4 w-4" />
-                          <span className="sr-only">واتساب</span>
+                          <span className="sr-only">WhatsApp</span>
                         </a>
                       </>
                     )}
@@ -400,7 +443,9 @@ export function RecentOrdersTable({
                         className="flex-1 min-h-[44px] rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-xs"
                       >
                         <CheckCircle2 className="h-4 w-4" />
-                        <span>تأكيد الطلب</span>
+                        <span>
+                          {locale === 'ar' ? 'تأكيد الطلب' : locale === 'fr' ? 'Confirmer' : 'Confirm'}
+                        </span>
                       </button>
                     )}
                   </div>

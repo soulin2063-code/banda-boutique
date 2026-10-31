@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { MapPin, Search, Trophy, TrendingUp } from 'lucide-react';
+import { useAdminLanguage } from '@/lib/i18n/AdminLanguageContext';
 
 export interface WilayaOrderStat {
   wilaya_id: number;
@@ -16,6 +17,8 @@ interface WilayaHeatmapProps {
 }
 
 export function WilayaHeatmap({ stats, totalOrders }: WilayaHeatmapProps) {
+  const { t, locale, dir } = useAdminLanguage();
+  const isRtl = dir === 'rtl';
   const [filterQuery, setFilterQuery] = useState('');
 
   // Standard benchmark stats for preview if empty
@@ -50,27 +53,35 @@ export function WilayaHeatmap({ stats, totalOrders }: WilayaHeatmapProps) {
             </div>
             <div>
               <h3 className="text-base font-bold text-slate-900">
-                توزيع الطلبات حسب الولايات
+                {t.wilaya_heatmap_title}
               </h3>
               <p className="text-xs text-slate-500">
-                كثافة الطلبيات وحجم الشحن للـ 58 ولاية
+                {t.wilaya_heatmap_sub}
               </p>
             </div>
           </div>
           <span className="rounded-full bg-slate-100 text-slate-700 text-xs font-bold px-2.5 py-1">
-            58 ولاية
+            {locale === 'ar' ? '58 ولاية' : '58 Wilayas'}
           </span>
         </div>
 
         {/* Search bar inside widget */}
         <div className="mt-3 relative">
-          <Search className="h-3.5 w-3.5 text-slate-400 absolute right-3 top-2.5" />
+          <Search className={`h-3.5 w-3.5 text-slate-400 absolute ${isRtl ? 'right-3' : 'left-3'} top-2.5`} />
           <input
             type="text"
             value={filterQuery}
             onChange={(e) => setFilterQuery(e.target.value)}
-            placeholder="ابحث عن ولاية بالاسم أو الرقم..."
-            className="w-full rounded-xl bg-slate-50 border border-slate-200/80 py-1.5 pr-8 pl-3 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all"
+            placeholder={
+              locale === 'ar'
+                ? 'ابحث عن ولاية بالاسم أو الرقم...'
+                : locale === 'fr'
+                ? 'Rechercher par nom ou code...'
+                : 'Search wilaya by name or code...'
+            }
+            className={`w-full rounded-xl bg-slate-50 border border-slate-200/80 py-1.5 ${
+              isRtl ? 'pr-8 pl-3' : 'pl-8 pr-3'
+            } text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all`}
           />
         </div>
       </div>
@@ -108,10 +119,10 @@ export function WilayaHeatmap({ stats, totalOrders }: WilayaHeatmapProps) {
                 {/* Orders & Revenue */}
                 <div className="flex items-center gap-2.5">
                   <span className="font-bold text-slate-900 font-mono text-xs">
-                    {item.order_count} طلب
+                    {item.order_count} {locale === 'ar' ? 'طلب' : locale === 'fr' ? 'cmd' : 'orders'}
                   </span>
                   <span className="font-semibold text-indigo-600 font-mono text-[11px] hidden sm:inline">
-                    {item.total_revenue.toLocaleString()} د.ج
+                    {item.total_revenue.toLocaleString()} {t.currency}
                   </span>
                   <span className="text-[10px] text-slate-400 font-mono">
                     ({percentOfTotal}%)

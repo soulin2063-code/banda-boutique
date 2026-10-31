@@ -12,6 +12,7 @@ import { redirect } from 'next/navigation';
 import { requireAdmin } from '@/lib/dal/auth';
 import { supabaseAdmin } from '@/lib/supabase/server';
 import { AdminLayoutClient } from '@/components/admin/AdminLayoutClient';
+import { AdminLocale } from '@/lib/i18n/adminTranslations';
 import '../globals.css';
 
 export const metadata: Metadata = {
@@ -48,6 +49,14 @@ export default async function AdminLayout({
   // Enforce server-side admin check
   const auth = await requireAdmin();
 
+  // Read saved admin locale from cookie
+  const cookieStore = await cookies();
+  const savedLocale = cookieStore.get('admin_locale')?.value as AdminLocale | undefined;
+  const initialLocale: AdminLocale =
+    savedLocale === 'ar' || savedLocale === 'fr' || savedLocale === 'en'
+      ? savedLocale
+      : 'ar';
+
   // Fetch live counts for sidebar badges
   let pendingOrdersCount = 0;
   let lowStockCount = 0;
@@ -78,6 +87,7 @@ export default async function AdminLayout({
       pendingOrdersCount={pendingOrdersCount}
       lowStockCount={lowStockCount}
       logoutAction={handleLogout}
+      initialLocale={initialLocale}
     >
       {children}
     </AdminLayoutClient>

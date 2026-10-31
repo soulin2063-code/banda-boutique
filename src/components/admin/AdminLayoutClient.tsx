@@ -24,9 +24,13 @@ import {
   ShieldCheck,
   Command,
   ArrowUpRight,
-  CheckCircle2,
-  TrendingUp,
+  Globe,
 } from 'lucide-react';
+import {
+  AdminLanguageProvider,
+  useAdminLanguage,
+} from '@/lib/i18n/AdminLanguageContext';
+import { AdminLocale } from '@/lib/i18n/adminTranslations';
 
 export interface AdminLayoutClientProps {
   children: React.ReactNode;
@@ -35,18 +39,137 @@ export interface AdminLayoutClientProps {
   pendingOrdersCount?: number;
   lowStockCount?: number;
   logoutAction: () => Promise<void>;
+  initialLocale?: AdminLocale;
 }
 
-interface NavItem {
-  title: string;
+interface NavItemConfig {
+  key: string;
+  titleKey: 'nav_dashboard' | 'nav_orders' | 'nav_products' | 'nav_categories' | 'nav_stock' | 'nav_attributes' | 'nav_customers' | 'nav_settings';
+  descKey: 'nav_dashboard_desc' | 'nav_orders_desc' | 'nav_products_desc' | 'nav_categories_desc' | 'nav_stock_desc' | 'nav_attributes_desc' | 'nav_customers_desc' | 'nav_settings_desc';
   href: string;
   icon: React.ElementType;
-  badge?: number;
+  badgeType?: 'pending' | 'stock';
   badgeColor?: string;
-  description: string;
 }
 
-export function AdminLayoutClient({
+const NAV_CONFIG: NavItemConfig[] = [
+  {
+    key: 'dashboard',
+    titleKey: 'nav_dashboard',
+    descKey: 'nav_dashboard_desc',
+    href: '/admin',
+    icon: LayoutDashboard,
+  },
+  {
+    key: 'orders',
+    titleKey: 'nav_orders',
+    descKey: 'nav_orders_desc',
+    href: '/admin/commandes',
+    icon: ShoppingBag,
+    badgeType: 'pending',
+    badgeColor: 'bg-amber-500 text-white animate-pulse',
+  },
+  {
+    key: 'products',
+    titleKey: 'nav_products',
+    descKey: 'nav_products_desc',
+    href: '/admin/produits',
+    icon: Package,
+  },
+  {
+    key: 'categories',
+    titleKey: 'nav_categories',
+    descKey: 'nav_categories_desc',
+    href: '/admin/categories',
+    icon: FolderTree,
+  },
+  {
+    key: 'stock',
+    titleKey: 'nav_stock',
+    descKey: 'nav_stock_desc',
+    href: '/admin/stock',
+    icon: Boxes,
+    badgeType: 'stock',
+    badgeColor: 'bg-rose-500 text-white',
+  },
+  {
+    key: 'attributes',
+    titleKey: 'nav_attributes',
+    descKey: 'nav_attributes_desc',
+    href: '/admin/attributs',
+    icon: Layers,
+  },
+  {
+    key: 'customers',
+    titleKey: 'nav_customers',
+    descKey: 'nav_customers_desc',
+    href: '/admin/clients',
+    icon: Users,
+  },
+  {
+    key: 'settings',
+    titleKey: 'nav_settings',
+    descKey: 'nav_settings_desc',
+    href: '/admin/parametres',
+    icon: Settings,
+  },
+];
+
+function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
+  const { locale, setLocale } = useAdminLanguage();
+
+  const languages: { code: AdminLocale; label: string; flag: string }[] = [
+    { code: 'ar', label: 'العربية', flag: '🇩🇿' },
+    { code: 'fr', label: 'Français', flag: '🇫🇷' },
+    { code: 'en', label: 'English', flag: '🇬🇧' },
+  ];
+
+  if (compact) {
+    return (
+      <div className="flex items-center rounded-xl bg-slate-900/90 p-1 border border-slate-800 text-xs w-full justify-between">
+        {languages.map((lang) => (
+          <button
+            key={lang.code}
+            type="button"
+            onClick={() => setLocale(lang.code)}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg font-bold transition-all ${
+              locale === lang.code
+                ? 'bg-indigo-600 text-white shadow-xs'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800'
+            }`}
+          >
+            <span>{lang.flag}</span>
+            <span>{lang.label}</span>
+          </button>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="inline-flex items-center rounded-xl bg-slate-100 p-0.5 border border-slate-200 shadow-xs">
+      {languages.map((lang) => (
+        <button
+          key={lang.code}
+          type="button"
+          onClick={() => setLocale(lang.code)}
+          className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition-all min-h-[32px] ${
+            locale === lang.code
+              ? 'bg-white text-indigo-600 shadow-xs ring-1 ring-slate-200/50'
+              : 'text-slate-500 hover:text-slate-900'
+          }`}
+          title={lang.label}
+        >
+          <span>{lang.flag}</span>
+          <span className="hidden sm:inline">{lang.label}</span>
+          <span className="sm:hidden uppercase">{lang.code}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function AdminLayoutClientInner({
   children,
   userEmail = 'admin@shopdz.com',
   userRole = 'مدير النظام',
@@ -55,7 +178,9 @@ export function AdminLayoutClient({
   logoutAction,
 }: AdminLayoutClientProps) {
   const pathname = usePathname();
-  const router = useRouter();
+  const { t, locale, dir } = useAdminLanguage();
+  const isRtl = dir === 'rtl';
+
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
@@ -82,60 +207,27 @@ export function AdminLayoutClient({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const navItems: NavItem[] = [
-    {
-      title: 'لوحة التحكم',
-      href: '/admin',
-      icon: LayoutDashboard,
-      description: 'المؤشرات والتحليلات البيانية',
-    },
-    {
-      title: 'إدارة الطلبات',
-      href: '/admin/commandes',
-      icon: ShoppingBag,
-      badge: pendingOrdersCount > 0 ? pendingOrdersCount : undefined,
-      badgeColor: 'bg-amber-500 text-white animate-pulse',
-      description: 'تأكيد وشحن طلبيات COD',
-    },
-    {
-      title: 'المنتجات',
-      href: '/admin/produits',
-      icon: Package,
-      description: 'إدارة الكتالوج والأسعار والصور',
-    },
-    {
-      title: 'التصنيفات',
-      href: '/admin/categories',
-      icon: FolderTree,
-      description: 'تنظيم الفئات والأقسام',
-    },
-    {
-      title: 'المخزون والتنبيهات',
-      href: '/admin/stock',
-      icon: Boxes,
-      badge: lowStockCount > 0 ? lowStockCount : undefined,
-      badgeColor: 'bg-rose-500 text-white',
-      description: 'متابعة الكميات ونواقص المنتجات',
-    },
-    {
-      title: 'الخصائص والمقاسات',
-      href: '/admin/attributs',
-      icon: Layers,
-      description: 'المقاسات، الألوان، والتفاصيل',
-    },
-    {
-      title: 'سجل الزبائن',
-      href: '/admin/clients',
-      icon: Users,
-      description: 'بيانات المشترين ومتابعة الشراء',
-    },
-    {
-      title: 'إعدادات المتجر',
-      href: '/admin/parametres',
-      icon: Settings,
-      description: 'أسعار الشحن للولايات والتوصيل',
-    },
-  ];
+  const navItems = NAV_CONFIG.map((item) => {
+    const badge =
+      item.badgeType === 'pending'
+        ? pendingOrdersCount > 0
+          ? pendingOrdersCount
+          : undefined
+        : item.badgeType === 'stock'
+        ? lowStockCount > 0
+          ? lowStockCount
+          : undefined
+        : undefined;
+
+    return {
+      title: t[item.titleKey],
+      description: t[item.descKey],
+      href: item.href,
+      icon: item.icon,
+      badge,
+      badgeColor: item.badgeColor,
+    };
+  });
 
   // Quick search items list
   const searchResults = navItems.filter(
@@ -150,10 +242,15 @@ export function AdminLayoutClient({
   );
 
   return (
-    <div dir="rtl" className="min-h-screen bg-slate-950/2 text-slate-900 font-sans flex flex-col md:flex-row antialiased selection:bg-indigo-500 selection:text-white">
+    <div
+      dir={dir}
+      className="min-h-screen bg-slate-950/2 text-slate-900 font-sans flex flex-col md:flex-row antialiased selection:bg-indigo-500 selection:text-white"
+    >
       {/* ── DESKTOP SIDEBAR ────────────────────────────────────────── */}
       <aside
-        className={`hidden md:flex flex-col bg-slate-950 text-slate-200 border-l border-slate-800/80 sticky top-0 h-screen z-30 transition-all duration-300 ease-in-out shrink-0 ${
+        className={`hidden md:flex flex-col bg-slate-950 text-slate-200 ${
+          isRtl ? 'border-l' : 'border-r'
+        } border-slate-800/80 sticky top-0 h-screen z-30 transition-all duration-300 ease-in-out shrink-0 ${
           isSidebarCollapsed ? 'w-20' : 'w-72'
         }`}
       >
@@ -171,13 +268,13 @@ export function AdminLayoutClient({
             {!isSidebarCollapsed && (
               <div className="flex flex-col leading-tight">
                 <span className="font-black text-lg text-white tracking-tight flex items-center gap-1.5">
-                  ShopDZ
+                  {t.brand}
                   <span className="rounded-md bg-indigo-500/20 text-indigo-400 text-[10px] font-bold px-1.5 py-0.5 border border-indigo-500/30">
-                    Pro
+                    {t.brand_pro}
                   </span>
                 </span>
                 <span className="text-[11px] text-slate-400 font-medium">
-                  لوحة التحكم الذكية
+                  {t.brand_tagline}
                 </span>
               </div>
             )}
@@ -187,9 +284,13 @@ export function AdminLayoutClient({
             <button
               onClick={() => setIsSidebarCollapsed(true)}
               className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/80 transition-colors"
-              title="تصغير القائمة"
+              title={t.nav_collapse}
             >
-              <ChevronRight className="h-4 w-4" />
+              {isRtl ? (
+                <ChevronRight className="h-4 w-4" />
+              ) : (
+                <ChevronLeft className="h-4 w-4" />
+              )}
             </button>
           )}
         </div>
@@ -200,9 +301,13 @@ export function AdminLayoutClient({
             <button
               onClick={() => setIsSidebarCollapsed(false)}
               className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-              title="توسيع القائمة"
+              title={t.nav_expand}
             >
-              <ChevronLeft className="h-4 w-4" />
+              {isRtl ? (
+                <ChevronLeft className="h-4 w-4" />
+              ) : (
+                <ChevronRight className="h-4 w-4" />
+              )}
             </button>
           </div>
         )}
@@ -211,7 +316,7 @@ export function AdminLayoutClient({
         <div className="flex-1 overflow-y-auto px-3 py-4 space-y-1.5 scrollbar-thin scrollbar-thumb-slate-800">
           {!isSidebarCollapsed && (
             <div className="px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-              القائمة الرئيسية
+              {t.menu_title}
             </div>
           )}
           {navItems.map((item) => {
@@ -253,7 +358,11 @@ export function AdminLayoutClient({
                 )}
 
                 {isActive && (
-                  <span className="absolute right-0 top-2 bottom-2 w-1 bg-white rounded-l-full" />
+                  <span
+                    className={`absolute top-2 bottom-2 w-1 bg-white ${
+                      isRtl ? 'right-0 rounded-l-full' : 'left-0 rounded-r-full'
+                    }`}
+                  />
                 )}
               </Link>
             );
@@ -263,16 +372,16 @@ export function AdminLayoutClient({
         {/* Quick Preview Store Link */}
         <div className="px-3 py-2 border-t border-slate-800/80">
           <Link
-            href="/ar"
+            href={`/${locale}`}
             target="_blank"
             className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800 transition-all group ${
               isSidebarCollapsed ? 'justify-center px-0' : ''
             }`}
-            title="معاينة المتجر المباشر"
+            title={t.nav_view_store}
           >
             <ArrowUpRight className="h-4 w-4 text-sky-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
             {!isSidebarCollapsed && (
-              <span className="flex-1 truncate">معاينة المتجر ↗</span>
+              <span className="flex-1 truncate">{t.nav_view_store}</span>
             )}
           </Link>
         </div>
@@ -292,7 +401,11 @@ export function AdminLayoutClient({
                 <p className="text-xs font-bold text-white truncate">{userEmail}</p>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-[10px] text-slate-400">{userRole}</span>
+                  <span className="text-[10px] text-slate-400">
+                    {userRole.includes('admin') || userRole.includes('مدير')
+                      ? t.role_admin
+                      : t.role_sales}
+                  </span>
                 </div>
               </div>
             )}
@@ -308,7 +421,7 @@ export function AdminLayoutClient({
                   type="submit"
                   disabled={isPending}
                   className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
-                  title="تسجيل الخروج"
+                  title={t.logout}
                 >
                   <LogOut className="h-4 w-4" />
                 </button>
@@ -328,7 +441,11 @@ export function AdminLayoutClient({
           />
 
           {/* Drawer Content */}
-          <div className="relative w-4/5 max-w-xs bg-slate-950 text-white h-full shadow-2xl flex flex-col z-10 animate-in slide-in-from-right duration-200">
+          <div
+            className={`relative w-4/5 max-w-xs bg-slate-950 text-white h-full shadow-2xl flex flex-col z-10 animate-in ${
+              isRtl ? 'slide-in-from-right' : 'slide-in-from-left'
+            } duration-200`}
+          >
             {/* Drawer Header */}
             <div className="h-16 flex items-center justify-between px-5 border-b border-slate-800">
               <div className="flex items-center gap-2.5">
@@ -336,8 +453,8 @@ export function AdminLayoutClient({
                   <Sparkles className="h-4 w-4" />
                 </div>
                 <div className="leading-tight">
-                  <div className="font-black text-base">ShopDZ Pro</div>
-                  <div className="text-[10px] text-slate-400">لوحة التحكم</div>
+                  <div className="font-black text-base">{t.brand} {t.brand_pro}</div>
+                  <div className="text-[10px] text-slate-400">{t.nav_dashboard}</div>
                 </div>
               </div>
               <button
@@ -346,6 +463,15 @@ export function AdminLayoutClient({
               >
                 <X className="h-5 w-5" />
               </button>
+            </div>
+
+            {/* Language Switcher in Drawer */}
+            <div className="p-4 border-b border-slate-800/80">
+              <div className="text-[11px] font-bold text-slate-400 uppercase mb-2 flex items-center gap-1.5">
+                <Globe className="h-3.5 w-3.5 text-indigo-400" />
+                <span>{t.select_language}</span>
+              </div>
+              <LanguageSwitcher compact />
             </div>
 
             {/* Drawer Navigation Links */}
@@ -387,11 +513,11 @@ export function AdminLayoutClient({
             {/* Drawer Footer */}
             <div className="p-4 border-t border-slate-800 space-y-3">
               <Link
-                href="/ar"
+                href={`/${locale}`}
                 target="_blank"
                 className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs font-bold text-slate-200 min-h-[44px]"
               >
-                <span>معاينة المتجر</span>
+                <span>{t.visit_store}</span>
                 <ExternalLink className="h-3.5 w-3.5" />
               </Link>
               <form
@@ -407,7 +533,7 @@ export function AdminLayoutClient({
                   className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs font-bold text-rose-400 min-h-[44px]"
                 >
                   <LogOut className="h-4 w-4" />
-                  <span>تسجيل الخروج</span>
+                  <span>{t.logout}</span>
                 </button>
               </form>
             </div>
@@ -420,14 +546,14 @@ export function AdminLayoutClient({
         {/* Top Header */}
         <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
           <div className="mx-auto w-full px-4 sm:px-6 lg:px-8">
-            <div className="flex h-16 items-center justify-between gap-4">
+            <div className="flex h-16 items-center justify-between gap-3">
               {/* Left Side: Mobile Menu Button & Breadcrumbs */}
               <div className="flex items-center gap-3">
                 <button
                   type="button"
                   onClick={() => setIsMobileDrawerOpen(true)}
                   className="md:hidden p-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-100 min-h-[44px] min-w-[44px] flex items-center justify-center"
-                  aria-label="فتح القائمة"
+                  aria-label="Toggle Menu"
                 >
                   <Menu className="h-5 w-5" />
                 </button>
@@ -438,7 +564,7 @@ export function AdminLayoutClient({
                     href="/admin"
                     className="text-slate-400 hover:text-slate-600 transition-colors"
                   >
-                    الرئيسية
+                    {t.breadcrumb_home}
                   </Link>
                   {currentNav && currentNav.href !== '/admin' && (
                     <>
@@ -451,16 +577,19 @@ export function AdminLayoutClient({
                 </div>
               </div>
 
-              {/* Center / Right: Quick Search Button & Actions */}
-              <div className="flex items-center gap-2.5">
+              {/* Center / Right: Language Switcher, Quick Search Button & Actions */}
+              <div className="flex items-center gap-2 sm:gap-2.5">
+                {/* 🌐 Language Switcher Pill */}
+                <LanguageSwitcher />
+
                 {/* Search Trigger */}
                 <button
                   type="button"
                   onClick={() => setIsSearchModalOpen(true)}
-                  className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100/80 hover:bg-slate-200/80 text-slate-600 border border-slate-200/80 text-xs transition-all min-h-[40px]"
+                  className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100/80 hover:bg-slate-200/80 text-slate-600 border border-slate-200/80 text-xs transition-all min-h-[38px]"
                 >
                   <Search className="h-3.5 w-3.5 text-slate-500" />
-                  <span className="hidden sm:inline">بحث سريع بالأقسام...</span>
+                  <span className="hidden lg:inline">{t.search_btn_text}</span>
                   <span className="hidden sm:inline-flex items-center gap-0.5 rounded bg-white px-1.5 py-0.5 text-[10px] font-mono text-slate-400 border border-slate-200">
                     <Command className="h-2.5 w-2.5" />K
                   </span>
@@ -468,11 +597,11 @@ export function AdminLayoutClient({
 
                 {/* Quick Store Preview */}
                 <Link
-                  href="/ar"
+                  href={`/${locale}`}
                   target="_blank"
-                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200/80 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 shadow-xs transition-all min-h-[40px]"
+                  className="hidden md:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200/80 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 shadow-xs transition-all min-h-[38px]"
                 >
-                  <span>زيارة المتجر</span>
+                  <span>{t.visit_store}</span>
                   <ExternalLink className="h-3.5 w-3.5 text-slate-400" />
                 </Link>
 
@@ -480,8 +609,8 @@ export function AdminLayoutClient({
                 {(pendingOrdersCount > 0 || lowStockCount > 0) && (
                   <Link
                     href={pendingOrdersCount > 0 ? '/admin/commandes' : '/admin/stock'}
-                    className="relative p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center"
-                    title={`${pendingOrdersCount} طلبات معلقة`}
+                    className="relative p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors min-h-[38px] min-w-[38px] flex items-center justify-center"
+                    title={`${pendingOrdersCount} ${t.pending_badge_tooltip}`}
                   >
                     <Bell className="h-4 w-4" />
                     <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-rose-500 ring-2 ring-white animate-ping" />
@@ -500,8 +629,8 @@ export function AdminLayoutClient({
                   <button
                     type="submit"
                     disabled={isPending}
-                    className="p-2 rounded-xl text-rose-600 bg-rose-50 border border-rose-200 hover:bg-rose-100 transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center"
-                    title="تسجيل الخروج"
+                    className="p-2 rounded-xl text-rose-600 bg-rose-50 border border-rose-200 hover:bg-rose-100 transition-colors min-h-[38px] min-w-[38px] flex items-center justify-center"
+                    title={t.logout}
                   >
                     <LogOut className="h-4 w-4" />
                   </button>
@@ -521,17 +650,17 @@ export function AdminLayoutClient({
       <nav className="fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/80 py-1.5 px-4 md:hidden shadow-lg shadow-slate-900/10">
         <div className="flex items-center justify-around">
           {[
-            { href: '/admin', title: 'الرئيسية', icon: LayoutDashboard },
+            { href: '/admin', title: t.nav_dashboard, icon: LayoutDashboard },
             {
               href: '/admin/commandes',
-              title: 'الطلبات',
+              title: t.nav_orders,
               icon: ShoppingBag,
               badge: pendingOrdersCount,
             },
-            { href: '/admin/produits', title: 'المنتجات', icon: Package },
+            { href: '/admin/produits', title: t.nav_products, icon: Package },
             {
               href: '/admin/stock',
-              title: 'المخزون',
+              title: t.nav_stock,
               icon: Boxes,
               badge: lowStockCount,
             },
@@ -569,7 +698,7 @@ export function AdminLayoutClient({
             className="flex flex-col items-center justify-center py-1 px-3 rounded-xl text-slate-500 hover:text-slate-900 min-h-[44px] min-w-[54px]"
           >
             <Menu className="h-5 w-5" />
-            <span className="text-[10px] mt-0.5">المزيد</span>
+            <span className="text-[10px] mt-0.5">{t.nav_more}</span>
           </button>
         </div>
       </nav>
@@ -589,7 +718,7 @@ export function AdminLayoutClient({
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="ابحث عن قسم أو صفحة (الطلبات، المنتجات، المخزون، الشحن...)"
+                placeholder={t.search_placeholder}
                 className="flex-1 bg-transparent text-sm text-slate-900 placeholder-slate-400 outline-none"
                 autoFocus
               />
@@ -626,25 +755,37 @@ export function AdminLayoutClient({
                           </p>
                         </div>
                       </div>
-                      <ChevronLeft className="h-4 w-4 text-slate-300 group-hover:text-indigo-600 transition-colors" />
+                      {isRtl ? (
+                        <ChevronLeft className="h-4 w-4 text-slate-300 group-hover:text-indigo-600 transition-colors" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-indigo-600 transition-colors" />
+                      )}
                     </Link>
                   );
                 })
               ) : (
                 <div className="py-8 text-center text-slate-500 text-xs">
-                  لا توجد نتائج تطابق &quot;{searchQuery}&quot;
+                  {t.search_no_results} &quot;{searchQuery}&quot;
                 </div>
               )}
             </div>
 
             {/* Modal Footer Note */}
             <div className="px-4 py-2.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-              <span>انقر للتنقل السريع</span>
-              <span className="font-mono">ESC للإغلاق</span>
+              <span>{t.search_hint_click}</span>
+              <span className="font-mono">{t.search_hint_esc}</span>
             </div>
           </div>
         </div>
       )}
     </div>
+  );
+}
+
+export function AdminLayoutClient(props: AdminLayoutClientProps) {
+  return (
+    <AdminLanguageProvider initialLocale={props.initialLocale || 'ar'}>
+      <AdminLayoutClientInner {...props} />
+    </AdminLanguageProvider>
   );
 }
